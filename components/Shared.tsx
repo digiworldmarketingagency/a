@@ -16,8 +16,8 @@ export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { 
   );
 };
 
-export const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label?: string }> = ({ label, className = '', ...props }) => (
-  <div className="mb-4">
+export const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label?: string, containerClassName?: string }> = ({ label, containerClassName = 'mb-4', className = '', ...props }) => (
+  <div className={containerClassName}>
     {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
     <input 
       className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm ${className}`}
@@ -26,8 +26,8 @@ export const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { lab
   </div>
 );
 
-export const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string, options: string[] }> = ({ label, options, className = '', ...props }) => (
-  <div className="mb-4">
+export const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string, options: string[], containerClassName?: string }> = ({ label, options, containerClassName = 'mb-4', className = '', ...props }) => (
+  <div className={containerClassName}>
     {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
     <select 
       className={`w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm ${className}`}

@@ -13,61 +13,106 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
     
   const recentJobs = store.getJobs().slice(0, 4);
   const blogs = store.getBlogs().slice(0, 3);
+  const successStories = store.getSuccessStories();
+  const creatives = store.getGallery();
 
-  const creatives = [
-    { id: 1, type: 'image', url: 'https://picsum.photos/400/300?random=50', title: 'Mentoring' },
-    { id: 2, type: 'video', url: 'https://picsum.photos/400/300?random=51', title: 'Workplace' },
-    { id: 3, type: 'image', url: 'https://picsum.photos/400/300?random=52', title: 'Interview' },
-    { id: 4, type: 'image', url: 'https://picsum.photos/400/300?random=53', title: 'Job Fair' },
-  ];
+  const handleFindJobs = () => {
+    // Save search criteria to store so JobBoard can read it
+    store.setSearchCriteria(search);
+    onNavigate('jobboard');
+  };
 
   return (
     <div>
       {/* Hero Section */}
-      <div className="relative bg-gray-900 h-[600px] flex items-center">
-        <img 
-          src="https://picsum.photos/1920/800?grayscale" 
-          alt="Diverse professionals in city" 
-          className="absolute inset-0 w-full h-full object-cover opacity-30" 
-        />
-        <div className="relative max-w-7xl mx-auto px-4 w-full flex flex-col md:flex-row items-center">
-           <div className="md:w-1/2 text-white mb-8 md:mb-0">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">Connecting Talent <br/><span className="text-accent">Transforming Futures</span></h1>
-              <p className="text-lg text-gray-300 mb-6 max-w-md">Join thousands of professionals and top companies on the most trusted recruitment platform.</p>
-              <Button onClick={() => onNavigate('register-candidate')} className="px-8 py-3 text-lg">Get Started</Button>
+      <div 
+        className="relative h-[650px] flex items-center justify-center bg-cover"
+        style={{ 
+          backgroundImage: "url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')",
+          backgroundPosition: 'center 20%' // Ensures faces are not cut off at the top
+        }}
+      >
+        {/* Background Overlay Tint */}
+        <div className="absolute inset-0 bg-blue-900/60 pointer-events-none"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 w-full flex flex-col items-center z-10">
+           <div className="text-white mb-10 text-center max-w-4xl drop-shadow-md">
+              <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight tracking-tight">
+                  15+ Years of Connecting Talent <br/>
+                  <span className="text-accent">with Opportunity across India!</span>
+              </h1>
+              <p className="text-lg text-gray-100 mb-2 font-light">Your gateway to a brighter professional future.</p>
            </div>
-           <div className="md:w-1/2 flex justify-center md:justify-end">
-             <div className="bg-white/95 backdrop-blur-md p-6 rounded-xl shadow-2xl w-full max-w-md border-t-4 border-primary">
-               <h2 className="text-xl font-bold text-gray-800 mb-4">Search Jobs</h2>
-               <div className="space-y-4">
-                 <Input placeholder="Job Title, Keywords, or Company" value={search.title} onChange={(e) => setSearch({...search, title: e.target.value})} />
-                 <Input placeholder="City or Pincode" value={search.location} onChange={(e) => setSearch({...search, location: e.target.value})} />
-                 <Select options={['IT', 'Marketing', 'Finance', 'HR', 'Sales']} value={search.category} onChange={(e) => setSearch({...search, category: e.target.value})} />
-                 <Button className="w-full py-3" onClick={() => onNavigate('jobboard')}>Find Jobs</Button>
+           
+           <div className="w-full max-w-5xl">
+               {/* Search Box - Sleek & Horizontal */}
+               <div className="bg-white rounded-lg shadow-2xl p-2 md:p-3 flex flex-col md:flex-row gap-2 items-center">
+                   <div className="w-full md:flex-1">
+                     <Input 
+                        placeholder="Job Title, Keywords, or Company" 
+                        value={search.title} 
+                        onChange={(e) => setSearch({...search, title: e.target.value})} 
+                        containerClassName="mb-0" 
+                        className="border-0 bg-gray-50 focus:bg-white h-12 rounded-md"
+                     />
+                   </div>
+                   <div className="w-full md:flex-1">
+                     <Input 
+                        placeholder="City or Pincode" 
+                        value={search.location} 
+                        onChange={(e) => setSearch({...search, location: e.target.value})} 
+                        containerClassName="mb-0" 
+                        className="border-0 bg-gray-50 focus:bg-white h-12 rounded-md"
+                     />
+                   </div>
+                   <div className="w-full md:w-48">
+                     <Select 
+                        options={['IT', 'Marketing', 'Finance', 'HR', 'Sales']} 
+                        value={search.category} 
+                        onChange={(e) => setSearch({...search, category: e.target.value})} 
+                        containerClassName="mb-0" 
+                        className="border-0 bg-gray-50 focus:bg-white h-12 rounded-md"
+                     />
+                   </div>
+                   <Button 
+                     className="w-full md:w-auto h-12 px-8 text-lg bg-primary hover:bg-teal-700 shadow-md whitespace-nowrap" 
+                     onClick={handleFindJobs}
+                   >
+                     Find Jobs
+                   </Button>
                </div>
-             </div>
+               
+               {/* Get Started Button - Left Aligned below Search Box */}
+               <div className="mt-6 flex justify-start">
+                   <Button 
+                      onClick={() => onNavigate('register-candidate')} 
+                      className="px-8 py-3 text-lg bg-accent hover:bg-orange-600 text-white shadow-xl rounded-full transform transition hover:-translate-y-1"
+                   >
+                      Get Started <i className="fas fa-arrow-right ml-2"></i>
+                   </Button>
+               </div>
            </div>
         </div>
       </div>
 
       {/* Stats Bar */}
-      <div className="bg-primary py-8 text-white shadow-inner">
-        <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-between text-center divide-x divide-teal-600">
-          <div className="flex-1 p-2">
-            <div className="text-3xl font-bold">10k+</div>
-            <div className="text-sm opacity-80">Jobs Posted</div>
+      <div className="bg-white py-10 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center md:justify-between text-center gap-8">
+          <div className="flex-1 min-w-[150px]">
+            <div className="text-4xl font-extrabold text-primary mb-1">10k+</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Jobs Posted</div>
           </div>
-          <div className="flex-1 p-2">
-            <div className="text-3xl font-bold">500+</div>
-            <div className="text-sm opacity-80">Companies</div>
+          <div className="flex-1 min-w-[150px]">
+            <div className="text-4xl font-extrabold text-primary mb-1">500+</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Companies</div>
           </div>
-          <div className="flex-1 p-2">
-            <div className="text-3xl font-bold">50k+</div>
-            <div className="text-sm opacity-80">Candidates</div>
+          <div className="flex-1 min-w-[150px]">
+            <div className="text-4xl font-extrabold text-primary mb-1">50k+</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Candidates</div>
           </div>
-          <div className="flex-1 p-2">
-            <div className="text-3xl font-bold">100+</div>
-            <div className="text-sm opacity-80">Events</div>
+          <div className="flex-1 min-w-[150px]">
+            <div className="text-4xl font-extrabold text-primary mb-1">100+</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Events</div>
           </div>
         </div>
       </div>
@@ -150,7 +195,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
                     <div className="flex flex-col sm:flex-row justify-between items-start">
                       <div>
                         <h3 className="font-bold text-xl text-primary">{job.title}</h3>
-                        <p className="text-gray-600 font-medium">{job.company}</p>
+                        <p className="font-medium text-gray-700">{job.company}</p>
                       </div>
                       <Button variant="outline" onClick={() => onNavigate('jobboard')} className="mt-4 sm:mt-0 text-sm py-1 px-3">Apply</Button>
                     </div>
@@ -190,17 +235,17 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-12">Success Stories</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[1,2,3].map(i => (
-              <div key={i} className="bg-teal-800 p-8 rounded-lg shadow-lg relative">
+            {successStories.map(story => (
+              <div key={story.id} className="bg-teal-800 p-8 rounded-lg shadow-lg relative">
                 <i className="fas fa-quote-left text-teal-600 text-4xl absolute top-4 left-4 opacity-30"></i>
-                <p className="text-teal-100 italic mb-6 z-10 relative">"AMP JobConnect helped me find my dream role in just 2 weeks. The AI resume builder was a game changer!"</p>
+                <p className="text-teal-100 italic mb-6 z-10 relative">"{story.comment}"</p>
                 <div className="flex items-center justify-center">
                   <div className="w-12 h-12 bg-gray-300 rounded-full mr-3 overflow-hidden">
-                     <img src={`https://i.pravatar.cc/150?img=${i+10}`} alt="User" />
+                     <img src={story.imageUrl} alt={story.name} />
                   </div>
                   <div className="text-left">
-                    <div className="font-bold text-white">Candidate Name</div>
-                    <div className="text-xs text-teal-300">Software Engineer @ Tech Corp</div>
+                    <div className="font-bold text-white">{story.name}</div>
+                    <div className="text-xs text-teal-300">{story.role}</div>
                   </div>
                 </div>
               </div>

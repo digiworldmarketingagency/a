@@ -5,7 +5,7 @@ const About: React.FC = () => {
     <div className="bg-white">
       <div className="bg-gray-100 py-16">
          <div className="max-w-7xl mx-auto px-4 text-center">
-            <h1 className="text-4xl font-bold text-primary mb-4">About AMP JobConnect</h1>
+            <h1 className="text-4xl font-bold text-primary mb-4">About AMPOWERJOBS.com</h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">Bridging the gap between talent and opportunity through innovation and compassion.</p>
          </div>
       </div>

@@ -29,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
           <div className="flex">
             {/* Logo Section */}
             <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => onNavigate('home')}>
-               <span className="font-bold text-xl text-primary">AMP JobConnect</span>
+               <span className="font-bold text-xl text-primary">AMPOWERJOBS.com</span>
             </div>
 
             {/* Desktop Navigation */}
@@ -59,7 +59,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                   )}
                 </div>
                 <button onClick={() => onNavigate('login-candidate')} className="text-primary hover:bg-teal-50 px-3 py-2 rounded-md text-sm font-medium border border-primary">Candidate Login</button>
-                <button onClick={() => onNavigate('login-corporate')} className="bg-primary text-white hover:bg-teal-700 px-3 py-2 rounded-md text-sm font-medium">Partner Login</button>
+                <button onClick={() => onNavigate('login-corporate')} className="bg-primary text-white hover:bg-teal-700 px-3 py-2 rounded-md text-sm font-medium">Control Center</button>
               </>
             ) : (
               <>
@@ -97,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                    </div>
                 </div>
                 <NavItem page="login-candidate" label="Candidate Login" />
-                <NavItem page="login-corporate" label="Corporate Login" />
+                <NavItem page="login-corporate" label="Control Center" />
               </>
             )}
             {user && (
@@ -114,42 +114,58 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
 };
 
 // --- Footer ---
-export const Footer = () => (
-  <footer className="bg-gray-800 text-white">
-    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div>
-          <h3 className="text-lg font-bold mb-4">AMP JobConnect</h3>
-          <p className="text-gray-400 text-sm">Empowering careers, connecting futures. The bridge between talent and opportunity.</p>
+interface FooterProps {
+    onNavigate?: (page: string) => void;
+}
+export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+  const handleNav = (page: string) => (e: React.MouseEvent) => {
+    e.preventDefault();
+    if(onNavigate) onNavigate(page);
+  };
+
+  return (
+    <footer className="bg-gray-800 text-white">
+        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+            <h3 className="text-lg font-bold mb-4">AMPOWERJOBS.com</h3>
+            <p className="text-gray-400 text-sm">Empowering careers, connecting futures. The bridge between talent and opportunity.</p>
+            </div>
+            <div>
+            <h4 className="text-md font-semibold mb-4 text-gray-300">Quick Links</h4>
+            <ul className="space-y-2 text-sm text-gray-400">
+                <li><button onClick={handleNav('home')} className="hover:text-white hover:underline">Home</button></li>
+                <li><button onClick={handleNav('about')} className="hover:text-white hover:underline">About Us</button></li>
+                <li><button onClick={handleNav('events')} className="hover:text-white hover:underline">Events</button></li>
+                <li><button onClick={handleNav('resources')} className="hover:text-white hover:underline">Resource Center</button></li>
+                <li><button onClick={handleNav('register-candidate')} className="hover:text-white hover:underline">Registration</button></li>
+                <li><button onClick={handleNav('login-candidate')} className="hover:text-white hover:underline">Candidate Login</button></li>
+            </ul>
+            </div>
+            <div>
+            <h4 className="text-md font-semibold mb-4 text-gray-300">Contact</h4>
+            <p className="text-sm text-gray-400">info@ampindia.org</p>
+            <p className="text-sm text-gray-400">+91 123 456 7890</p>
+            </div>
+            <div>
+            <h4 className="text-md font-semibold mb-4 text-gray-300">Follow Us</h4>
+            <div className="flex space-x-4">
+                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-facebook fa-lg"></i></a>
+                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-linkedin fa-lg"></i></a>
+                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-twitter fa-lg"></i></a>
+                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-pinterest fa-lg"></i></a>
+                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-telegram fa-lg"></i></a>
+                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-instagram fa-lg"></i></a>
+            </div>
+            </div>
         </div>
-        <div>
-          <h4 className="text-md font-semibold mb-4 text-gray-300">Quick Links</h4>
-          <ul className="space-y-2 text-sm text-gray-400">
-            <li><a href="#" className="hover:text-white">Home</a></li>
-            <li><a href="#" className="hover:text-white">Jobs</a></li>
-            <li><a href="#" className="hover:text-white">Events</a></li>
-          </ul>
+        <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
+            &copy; 2024 AMPOWERJOBS.com. All rights reserved.
         </div>
-        <div>
-          <h4 className="text-md font-semibold mb-4 text-gray-300">Contact</h4>
-          <p className="text-sm text-gray-400">info@ampindia.org</p>
-          <p className="text-sm text-gray-400">+91 123 456 7890</p>
         </div>
-        <div>
-          <h4 className="text-md font-semibold mb-4 text-gray-300">Follow Us</h4>
-          <div className="flex space-x-4">
-            <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-facebook fa-lg"></i></a>
-            <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-linkedin fa-lg"></i></a>
-            <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-twitter fa-lg"></i></a>
-          </div>
-        </div>
-      </div>
-      <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
-        &copy; 2024 AMP JobConnect. All rights reserved.
-      </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 // --- Admin Sidebar ---
 export const AdminSidebar: React.FC<{ activeTab: string, setActiveTab: (t: string) => void }> = ({ activeTab, setActiveTab }) => {
@@ -157,9 +173,12 @@ export const AdminSidebar: React.FC<{ activeTab: string, setActiveTab: (t: strin
     { id: 'master', label: 'Master Data', icon: 'fa-database' },
     { id: 'approvals', label: 'Approvals', icon: 'fa-check-circle' },
     { id: 'reports', label: 'Reports', icon: 'fa-chart-bar' },
+    { id: 'manage-events', label: 'Events', icon: 'fa-calendar-alt' },
     { id: 'post-job', label: 'Post Job', icon: 'fa-briefcase' },
     { id: 'blog', label: 'Blog', icon: 'fa-pen-fancy' },
     { id: 'email', label: 'Email Marketing', icon: 'fa-envelope' },
+    { id: 'success-stories', label: 'Success Stories', icon: 'fa-star' },
+    { id: 'gallery', label: 'Gallery', icon: 'fa-images' },
   ];
 
   return (
