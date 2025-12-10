@@ -1,0 +1,8 @@
+{
+  "name": "Ampower Jobs",
+  "description": "A comprehensive job portal connecting candidates and corporations with AI-powered features.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
