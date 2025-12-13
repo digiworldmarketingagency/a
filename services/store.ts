@@ -1,4 +1,4 @@
-import { User, UserType, Job, Event, Blog, EmailTemplate, SuccessStory, GalleryItem } from '../types';
+import { User, UserType, Job, Event, Blog, EmailTemplate, SuccessStory, GalleryItem, CandidateListing, CorporateUser } from '../types';
 
 // Mock Data
 const MOCK_JOBS: Job[] = [
@@ -11,7 +11,12 @@ const MOCK_JOBS: Job[] = [
     category: 'IT', 
     description: 'React & Node.js dev needed.', 
     postedDate: '2023-10-25', 
-    status: 'OPEN' 
+    status: 'OPEN',
+    salaryMin: '10 LPA',
+    salaryMax: '15 LPA',
+    approvalStatus: 'Approved',
+    jobType: 'Full Time',
+    expiryDate: '2023-12-30'
   },
   { 
     id: '2', 
@@ -21,7 +26,12 @@ const MOCK_JOBS: Job[] = [
     category: 'Marketing', 
     description: 'Lead marketing campaigns.', 
     postedDate: '2023-10-26', 
-    status: 'OPEN' 
+    status: 'OPEN',
+    salaryMin: '8 LPA',
+    salaryMax: '12 LPA',
+    approvalStatus: 'Approved',
+    jobType: 'Full Time',
+    expiryDate: '2024-01-15'
   },
   { 
     id: '3', 
@@ -32,7 +42,12 @@ const MOCK_JOBS: Job[] = [
     category: 'Data', 
     description: 'SQL and Python required.', 
     postedDate: '2023-10-24', 
-    status: 'OPEN' 
+    status: 'OPEN',
+    salaryMin: '12 LPA',
+    salaryMax: '18 LPA',
+    approvalStatus: 'Approved',
+    jobType: 'Full Time',
+    expiryDate: '2023-12-20'
   },
   { 
     id: '4', 
@@ -42,8 +57,31 @@ const MOCK_JOBS: Job[] = [
     category: 'HR', 
     description: 'Recruitment specialist.', 
     postedDate: '2023-10-20', 
-    status: 'CLOSED' 
+    status: 'CLOSED',
+    salaryMin: '5 LPA',
+    salaryMax: '7 LPA',
+    approvalStatus: 'Rejected',
+    statusReason: 'Low salary for experience required',
+    jobType: 'Part Time',
+    expiryDate: '2023-11-20'
   },
+];
+
+const MOCK_CANDIDATES: CandidateListing[] = [
+    { 
+        id: '1', name: 'John Doe', title: 'Senior Developer', location: 'Mumbai', experience: '5', qualification: 'B.Tech', skills: ['React', 'Node.js'], email: 'john@example.com',
+        mobile: '9876543210', dob: '1995-05-15', pincode: '400001', state: 'Maharashtra', city: 'Mumbai', area: 'Andheri', preferredCities: 'Pune, Bangalore', linkedin: 'linkedin.com/in/johndoe', preferredJobType: 'Full Time', preferredRole: 'Software Engineer', isFresher: 'No', highestEducation: 'B.Tech', jobFairEnrolled: 'Yes', createdBy: 'Self', createdOn: '2023-01-01', cvLink: 'link-to-cv'
+    },
+    { 
+        id: '2', name: 'Jane Smith', title: 'Marketing Executive', location: 'Delhi', experience: '2', qualification: 'MBA', skills: ['SEO', 'Content Marketing'], email: 'jane@example.com',
+         mobile: '9123456780', dob: '1998-08-20', pincode: '110001', state: 'Delhi', city: 'Delhi', area: 'Connaught Place', preferredCities: 'Gurgaon, Noida', linkedin: 'linkedin.com/in/janesmith', preferredJobType: 'Full Time', preferredRole: 'Marketing', isFresher: 'No', highestEducation: 'MBA', jobFairEnrolled: 'No', createdBy: 'Admin', createdOn: '2023-02-15', cvLink: 'link-to-cv'
+    },
+];
+
+const MOCK_CORPORATES: CorporateUser[] = [
+    { id: '1', fullName: 'Rajesh Kumar', companyName: 'Alpha Innovations', email: 'rajesh@alpha.com', mobile: '9988776655', designation: 'HR Manager', location: 'Bangalore', status: 'PENDING' },
+    { id: '2', fullName: 'Sarah Lee', companyName: 'Global Tech', email: 'sarah@global.com', mobile: '9988776644', designation: 'Director', location: 'Mumbai', status: 'APPROVED' },
+    { id: '3', fullName: 'Amit Singh', companyName: 'Beta Solutions', email: 'amit@beta.com', mobile: '9988776633', designation: 'CEO', location: 'Pune', status: 'REJECTED', statusReason: 'Invalid GST' },
 ];
 
 const MOCK_EVENTS: Event[] = [
@@ -99,6 +137,8 @@ export interface SearchCriteria {
 class MockStore {
   currentUser: User | null = null;
   jobs: Job[] = MOCK_JOBS;
+  candidates: CandidateListing[] = MOCK_CANDIDATES;
+  corporates: CorporateUser[] = MOCK_CORPORATES;
   events: Event[] = MOCK_EVENTS;
   blogs: Blog[] = [...MOCK_BLOGS]; 
   approvals: ApprovalRequest[] = MOCK_APPROVALS;
@@ -108,6 +148,9 @@ class MockStore {
   
   // Search State
   searchCriteria: SearchCriteria = { title: '', location: '', category: '' };
+
+  // Saved Jobs State
+  savedJobIds: string[] = [];
 
   login(type: UserType): User {
     this.currentUser = {
@@ -122,6 +165,7 @@ class MockStore {
 
   logout() {
     this.currentUser = null;
+    this.savedJobIds = []; // Clear saved jobs on logout (for mock purposes)
   }
 
   getJobs(filter?: string) {
@@ -130,6 +174,14 @@ class MockStore {
       j.title.toLowerCase().includes(filter.toLowerCase()) || 
       j.location.toLowerCase().includes(filter.toLowerCase())
     );
+  }
+
+  getCandidates() {
+      return this.candidates;
+  }
+
+  getCorporates() {
+      return this.corporates;
   }
   
   addJob(job: Job) {
@@ -155,6 +207,22 @@ class MockStore {
     if (idx !== -1) {
       this.approvals[idx].status = status;
     }
+  }
+
+  updateCorporateStatus(id: string, status: 'APPROVED' | 'REJECTED', reason?: string) {
+      const idx = this.corporates.findIndex(c => c.id === id);
+      if(idx !== -1) {
+          this.corporates[idx].status = status;
+          this.corporates[idx].statusReason = reason;
+      }
+  }
+
+  updateJobStatus(id: string, status: 'Approved' | 'Rejected', reason?: string) {
+      const idx = this.jobs.findIndex(j => j.id === id);
+      if(idx !== -1) {
+          this.jobs[idx].approvalStatus = status;
+          this.jobs[idx].statusReason = reason;
+      }
   }
 
   getEmailTemplates() { return this.emailTemplates; }
@@ -209,6 +277,23 @@ class MockStore {
 
   clearSearchCriteria() {
       this.searchCriteria = { title: '', location: '', category: '' };
+  }
+
+  // Saved Jobs Methods
+  toggleSaveJob(jobId: string) {
+    if (this.savedJobIds.includes(jobId)) {
+      this.savedJobIds = this.savedJobIds.filter(id => id !== jobId);
+    } else {
+      this.savedJobIds.push(jobId);
+    }
+  }
+
+  getSavedJobIds() {
+    return this.savedJobIds;
+  }
+
+  getSavedJobs() {
+    return this.jobs.filter(job => this.savedJobIds.includes(job.id));
   }
 }
 

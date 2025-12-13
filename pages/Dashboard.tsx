@@ -1,17 +1,21 @@
-import React, { useState } from 'react';
-import { UserType, Job, Blog, EmailTemplate, SuccessStory, Event, GalleryItem } from '../types';
+import React, { useState, useEffect } from 'react';
+import { UserType, Job, Blog, EmailTemplate, SuccessStory, Event, GalleryItem, CandidateListing } from '../types';
 import { AdminSidebar } from '../components/Layout';
 import { Card, Button, Input, Select, Modal } from '../components/Shared';
 import { store } from '../services/store';
 import { draftBlogPost, generateEmailTemplate } from '../services/geminiService';
 
 const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
-  const [activeTab, setActiveTab] = useState('reports');
+  const [activeTab, setActiveTab] = useState(userType === UserType.CANDIDATE ? 'overview' : 'master');
   const [candidateTab, setCandidateTab] = useState('overview');
   const [blogTopic, setBlogTopic] = useState('');
   const [generatedBlog, setGeneratedBlog] = useState('');
   const [loading, setLoading] = useState(false);
   
+  // Search Candidate State (Corporate) - Inaccessible via menu but kept for potential reuse
+  const [candidateSearch, setCandidateSearch] = useState({ location: '', experience: '', qualification: '' });
+  const [candidateResults, setCandidateResults] = useState<CandidateListing[]>(store.getCandidates());
+
   // Email Marketing State
   const [emailJobTitle, setEmailJobTitle] = useState('');
   const [emailCandidate, setEmailCandidate] = useState('');
@@ -20,18 +24,6 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
   const [emailBody, setEmailBody] = useState('');
   const [newTemplateName, setNewTemplateName] = useState('');
   const [templates, setTemplates] = useState<EmailTemplate[]>(store.getEmailTemplates());
-
-  // Success Stories State
-  const [storyForm, setStoryForm] = useState({ id: '', name: '', role: '', comment: '', imageUrl: 'https://i.pravatar.cc/150' });
-  const [stories, setStories] = useState<SuccessStory[]>(store.getSuccessStories());
-  const [isEditingStory, setIsEditingStory] = useState(false);
-
-  // Gallery State
-  const [galleryForm, setGalleryForm] = useState({ title: '', url: '', type: 'image' });
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(store.getGallery());
-
-  // Events State
-  const [eventForm, setEventForm] = useState({ title: '', date: '', location: '', description: '', imageUrl: 'https://picsum.photos/400/200' });
 
   // Post Job State
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -61,6 +53,40 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
     description: '',
     category: 'IT'
   });
+  
+  // Saved Jobs State
+  const [savedJobsList, setSavedJobsList] = useState<Job[]>([]);
+
+  // Approvals State
+  const [approvalType, setApprovalType] = useState<'CORPORATE' | 'JOB'>('CORPORATE');
+  const [approvalReason, setApprovalReason] = useState('');
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+
+  // Reports State
+  const [reportType, setReportType] = useState<'CORPORATE' | 'JOB' | 'CANDIDATE' | 'EVENT'>('CORPORATE');
+  const [candidateColumns, setCandidateColumns] = useState<string[]>(['Name', 'Mobile', 'Email', 'Location']);
+  
+  const allCandidateColumns = [
+      "Date of Birth", "Mobile No", "Email", "State", "City", "Pin Code", "Area", "Preferred Cities", "LinkedIn", 
+      "Preferred Job Type", "Preferred Role Type", "Is Fresher", "Highest Education", "Job Fair Enrolled", "Created By", "Created On", "CV"
+  ];
+
+  useEffect(() => {
+      if (userType === UserType.CANDIDATE) {
+          setSavedJobsList(store.getSavedJobs());
+      }
+  }, [userType, candidateTab]);
+
+  const handleCandidateSearch = () => {
+     const all = store.getCandidates();
+     const filtered = all.filter(c => {
+         const matchLoc = !candidateSearch.location || c.location.toLowerCase().includes(candidateSearch.location.toLowerCase());
+         const matchExp = !candidateSearch.experience || parseInt(c.experience) >= parseInt(candidateSearch.experience);
+         const matchQual = !candidateSearch.qualification || c.qualification.toLowerCase().includes(candidateSearch.qualification.toLowerCase());
+         return matchLoc && matchExp && matchQual;
+     });
+     setCandidateResults(filtered);
+  };
 
   const handleJobChange = (field: string, value: any) => {
     setJobForm(prev => ({ ...prev, [field]: value }));
@@ -91,14 +117,11 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
   };
 
   const handlePublishJob = () => {
-    // Destructure status from jobForm to avoid conflict with Job.status which expects 'OPEN' | 'CLOSED'
     const { status: formStatus, ...restJobForm } = jobForm;
-
-    // Create new Job object
     const newJob: Job = {
       id: Math.random().toString(36).substr(2, 9),
       title: jobForm.title,
-      company: 'My Company', // Dynamic in real app
+      company: 'My Company', 
       location: jobForm.location,
       category: jobForm.category,
       description: jobForm.description,
@@ -107,50 +130,12 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
       approvalStatus: formStatus as any,
       ...restJobForm
     };
-
     store.addJob(newJob);
-    
-    // Add to approvals if waiting
-    if (formStatus === 'Waiting for Approval') {
-      store.approvals.push({
-        id: Math.random().toString(36).substr(2, 9),
-        type: 'JOB',
-        name: jobForm.title,
-        details: `Posted by My Company. Status: ${formStatus}`,
-        date: new Date().toISOString().split('T')[0],
-        status: 'PENDING'
-      });
-    }
-
     setIsPreviewOpen(false);
-    alert(`Job Published! Status: ${formStatus}. Check 'Approvals' tab.`);
-    // Reset form or redirect
-    setActiveTab('approvals');
-  };
-
-  // Mock Candidate Profile for Dashboard view (since registration data isn't persisted)
-  const mockProfile = {
-      name: "John Doe",
-      email: "john.doe@example.com",
-      mobile: "+91 98765 43210",
-      location: "Mumbai, Maharashtra",
-      linkedin: "https://linkedin.com/in/johndoe",
-      skills: "React, TypeScript, Node.js, Tailwind CSS",
-      languages: "English (Native), Hindi (Proficient)",
-      experience: [
-          { role: "Senior Developer", company: "Tech Corp", duration: "2021 - Present" },
-          { role: "Junior Developer", company: "StartUp Inc", duration: "2019 - 2021" }
-      ],
-      education: [
-          { degree: "B.Tech Computer Science", institution: "IIT Bombay", year: "2019", percentage: "8.5 CGPA" }
-      ],
-      preferences: {
-          role: "Software Engineer",
-          type: "Full Time",
-          industry: "IT Services",
-          salary: "15-20 LPA",
-          relocate: "Yes"
-      }
+    alert(`Job Published! Status: ${formStatus}.`);
+    if (userType === UserType.CORPORATE) {
+        setJobForm({...jobForm, title: ''}); // Reset just title for simple UX
+    }
   };
 
   const handleBlogGen = async () => {
@@ -163,7 +148,6 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
 
   const handlePostBlog = () => {
     if (!generatedBlog || !blogTopic) return;
-    
     const newBlog: Blog = {
         id: Math.random().toString(36).substr(2, 9),
         title: blogTopic,
@@ -171,14 +155,11 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
         content: generatedBlog,
         date: new Date().toISOString().split('T')[0]
     };
-    
     store.addBlog(newBlog);
-    alert('Blog Posted Successfully! It is now live on the Home page.');
+    alert('Blog Posted Successfully!');
     setGeneratedBlog('');
     setBlogTopic('');
   };
-
-  const refreshTemplates = () => setTemplates([...store.getEmailTemplates()]);
 
   const handleEmailGen = async () => {
     setLoading(true);
@@ -188,204 +169,352 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
     setLoading(false);
   };
 
-  const handleLoadTemplate = (t: EmailTemplate) => {
-    setEmailSubject(t.subject);
-    setEmailBody(t.body);
+  const handleProcessApproval = (id: string, type: 'CORPORATE' | 'JOB', action: 'APPROVE' | 'REJECT') => {
+      if (action === 'REJECT') {
+          setRejectingId(id);
+          return;
+      }
+      
+      if (type === 'CORPORATE') {
+          store.updateCorporateStatus(id, 'APPROVED');
+      } else {
+          store.updateJobStatus(id, 'Approved');
+      }
+      alert(`${type} Approved!`);
+  };
+
+  const confirmReject = (type: 'CORPORATE' | 'JOB') => {
+      if (!rejectingId) return;
+      if (type === 'CORPORATE') {
+          store.updateCorporateStatus(rejectingId, 'REJECTED', approvalReason);
+      } else {
+          store.updateJobStatus(rejectingId, 'Rejected', approvalReason);
+      }
+      alert(`${type} Rejected with reason: ${approvalReason}`);
+      setRejectingId(null);
+      setApprovalReason('');
+  };
+
+  const toggleCandidateColumn = (col: string) => {
+      if (candidateColumns.includes(col)) {
+          setCandidateColumns(candidateColumns.filter(c => c !== col));
+      } else {
+          setCandidateColumns([...candidateColumns, col]);
+      }
+  };
+
+  const handleDownload = (format: string) => {
+      alert(`Downloading report as ${format}...`);
+  };
+
+  // Add missing handlers
+  const handleLoadTemplate = (template: EmailTemplate) => {
+    setEmailSubject(template.subject);
+    setEmailBody(template.body);
   };
 
   const handleDeleteTemplate = (id: string) => {
-    if (confirm("Are you sure you want to delete this template?")) {
-        store.deleteEmailTemplate(id);
-        refreshTemplates();
-    }
+    store.deleteEmailTemplate(id);
+    setTemplates(store.getEmailTemplates());
   };
 
   const handleSaveTemplate = () => {
-    if (!newTemplateName) return alert("Please enter a name for the template");
-    if (!emailSubject || !emailBody) return alert("Subject and Body are required to save a template");
-    
-    const success = store.addEmailTemplate({
-        id: Math.random().toString(36).substr(2, 9),
+    if (!newTemplateName || !emailBody) {
+        alert("Please provide a template name and body.");
+        return;
+    }
+    const newTemplate: EmailTemplate = {
+        id: Date.now().toString(),
         name: newTemplateName,
         subject: emailSubject,
         body: emailBody
-    });
-
-    if (success) {
-        alert("Template saved successfully!");
+    };
+    const added = store.addEmailTemplate(newTemplate);
+    if (added) {
+        setTemplates(store.getEmailTemplates());
         setNewTemplateName('');
-        refreshTemplates();
+        alert("Template saved!");
     } else {
-        alert("Limit Reached: You can only store up to 10 templates. Please delete some old ones.");
+        alert("Template limit reached.");
     }
   };
 
   const handleSendEmail = () => {
-    if (!emailTo || !emailSubject || !emailBody) return alert("Please fill in To, Subject, and Body fields.");
-    
-    setLoading(true);
-    // Simulate sending
-    setTimeout(() => {
-        setLoading(false);
-        alert(`Email Sent Successfully!\n\nFrom: connect@ampowerjobs.com\nTo: ${emailTo}\nSubject: ${emailSubject}`);
-        // Reset fields
-        setEmailTo('');
-        setEmailSubject('');
-        setEmailBody('');
-    }, 1500);
+      if (!emailTo) return alert("Please enter recipient email.");
+      setLoading(true);
+      setTimeout(() => {
+          setLoading(false);
+          alert(`Email sent to ${emailTo}`);
+          setEmailTo('');
+      }, 1000);
   };
 
-  const handleAddStory = () => {
-      if (!storyForm.name || !storyForm.role || !storyForm.comment) return alert("Please fill all fields.");
-      
-      if (isEditingStory) {
-          store.updateSuccessStory({
-              id: storyForm.id,
-              name: storyForm.name,
-              role: storyForm.role,
-              comment: storyForm.comment,
-              imageUrl: storyForm.imageUrl
-          });
-          setIsEditingStory(false);
-      } else {
-          store.addSuccessStory({
-              id: Math.random().toString(36).substr(2, 9),
-              ...storyForm
-          });
-      }
-      
-      setStories([...store.getSuccessStories()]);
-      setStoryForm({ id: '', name: '', role: '', comment: '', imageUrl: 'https://i.pravatar.cc/150' });
-      alert(isEditingStory ? "Story Updated!" : "Success Story Added!");
+  const handleUnsaveJob = (id: string) => {
+      store.toggleSaveJob(id);
+      setSavedJobsList(store.getSavedJobs());
   };
 
-  const handleEditStory = (story: SuccessStory) => {
-      setStoryForm(story);
-      setIsEditingStory(true);
-  };
-
-  const handleDeleteStory = (id: string) => {
-      if(confirm("Delete this story?")) {
-        store.deleteSuccessStory(id);
-        setStories([...store.getSuccessStories()]);
-      }
-  };
-
-  const handleAddEvent = () => {
-      if (!eventForm.title || !eventForm.date || !eventForm.location) return alert("Please fill all required fields.");
-      store.addEvent({
-          id: Math.random().toString(36).substr(2, 9),
-          ...eventForm
-      });
-      alert("Event Created Successfully!");
-      setEventForm({ title: '', date: '', location: '', description: '', imageUrl: 'https://picsum.photos/400/200' });
-  };
-
-  const handleAddGalleryItem = () => {
-      if (!galleryForm.title || !galleryForm.url) return alert("Please fill title and URL.");
-      store.addGalleryItem({
-          id: Math.random().toString(36).substr(2, 9),
-          title: galleryForm.title,
-          url: galleryForm.url,
-          type: galleryForm.type as 'image' | 'video'
-      });
-      setGalleryItems([...store.getGallery()]);
-      setGalleryForm({ title: '', url: '', type: 'image' });
-      alert("Added to Gallery!");
-  };
-
-  const handleDeleteGalleryItem = (id: string) => {
-      if(confirm("Delete this item?")) {
-          store.deleteGalleryItem(id);
-          setGalleryItems([...store.getGallery()]);
+  // Mock Profile for Candidate View
+  const mockProfile = {
+      name: 'John Doe',
+      location: 'Mumbai, Maharashtra',
+      email: 'john@example.com',
+      mobile: '+91 9876543210',
+      linkedin: 'https://linkedin.com/in/johndoe',
+      languages: 'English, Hindi, Marathi',
+      skills: 'React, Node.js, TypeScript, Tailwind CSS',
+      experience: [
+          { role: 'Senior Developer', company: 'Tech Corp', duration: '2 Years' },
+          { role: 'Junior Developer', company: 'StartUp Inc.', duration: '1 Year' }
+      ],
+      education: [
+          { degree: 'B.Tech Computer Science', institution: 'Mumbai University', year: '2019', percentage: '8.5 CGPA' }
+      ],
+      preferences: {
+          role: 'Full Stack Developer',
+          type: 'Full Time',
+          salary: '12 LPA',
+          relocate: 'Yes'
       }
   };
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'reports':
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card>
-                    <div className="text-2xl font-bold text-primary">1,245</div>
-                    <div className="text-xs text-gray-500">Candidates</div>
-                </Card>
-                <Card>
-                    <div className="text-2xl font-bold text-accent">85</div>
-                    <div className="text-xs text-gray-500">Active Jobs</div>
-                </Card>
-                <Card>
-                    <div className="text-2xl font-bold text-blue-600">42</div>
-                    <div className="text-xs text-gray-500">Pending Approvals</div>
-                </Card>
-                <Card>
-                    <div className="text-2xl font-bold text-green-600">12</div>
-                    <div className="text-xs text-gray-500">Events</div>
-                </Card>
-            </div>
-            
-            <Card title="Download Reports">
-                <div className="flex flex-wrap gap-4">
-                    <Button variant="outline" onClick={() => alert("Downloading Candidate List.xlsx...")}>
-                        <i className="fas fa-file-excel mr-2 text-green-600"></i> Candidate List (XLSX)
-                    </Button>
-                    <Button variant="outline" onClick={() => alert("Downloading Job Postings.xlsx...")}>
-                        <i className="fas fa-file-excel mr-2 text-green-600"></i> Job Postings (XLSX)
-                    </Button>
-                    <Button variant="outline" onClick={() => alert("Downloading Corporate List.pdf...")}>
-                        <i className="fas fa-file-pdf mr-2 text-red-600"></i> Corporate List (PDF)
-                    </Button>
-                    <Button variant="outline" onClick={() => alert("Downloading Events List.xlsx...")}>
-                        <i className="fas fa-file-excel mr-2 text-green-600"></i> Events List (XLSX)
-                    </Button>
-                </div>
-            </Card>
-          </div>
-        );
-      case 'approvals':
-        const approvals = store.getApprovals();
-        return (
-            <div className="space-y-4">
-                <p className="text-sm text-gray-600 mb-4">Jobs must be approved here before they appear on the main Job Board.</p>
-                {approvals.map(req => (
-                    <div key={req.id} className="bg-white p-4 rounded shadow flex justify-between items-center">
-                        <div>
-                            <div className="flex items-center space-x-2">
-                                <span className={`text-xs px-2 py-1 rounded text-white ${req.type === 'CORPORATE' ? 'bg-indigo-500' : 'bg-teal-500'}`}>{req.type}</span>
-                                <span className="font-bold">{req.name}</span>
-                            </div>
-                            <p className="text-sm text-gray-500 mt-1">{req.details}</p>
-                            <p className="text-xs text-gray-400">{req.date}</p>
-                        </div>
-                        <div className="flex space-x-2">
-                            {req.status === 'PENDING' ? (
-                                <>
-                                    <Button className="bg-green-600 hover:bg-green-700 text-xs">Approve</Button>
-                                    <Button className="bg-red-500 hover:bg-red-600 text-xs">Reject</Button>
-                                </>
-                            ) : (
-                                <span className="text-sm font-bold text-gray-500">{req.status}</span>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
+      // 1. Master Data
       case 'master':
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {['City Master', 'State Master', 'Job Title Master', 'Pin Code Master'].map((m, i) => (
-                    <Card key={i} title={m}>
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-500">Last updated: 10 Oct 2023</span>
-                            <Button variant="outline" className="text-xs">Upload CSV</Button>
-                        </div>
-                    </Card>
-                ))}
+            <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {['City Master', 'State Master', 'Pin Code Master'].map((m) => (
+                        <Card key={m} title={m}>
+                            <div className="flex flex-col space-y-3">
+                                <Button className="text-sm bg-blue-600 hover:bg-blue-700" onClick={() => alert("Simulating AI Generation from public sources...")}>
+                                    <i className="fas fa-magic mr-2"></i> Generate via AI
+                                </Button>
+                                <Button variant="outline" className="text-sm">
+                                    <i className="fas fa-upload mr-2"></i> Upload File
+                                </Button>
+                            </div>
+                        </Card>
+                    ))}
+                    {['Job Title Master', 'Job Description Master', 'Degree Master', 'Experience Master'].map((m) => (
+                        <Card key={m} title={m}>
+                             <div className="flex flex-col space-y-3">
+                                <Button variant="outline" className="text-sm w-full">
+                                    <i className="fas fa-upload mr-2"></i> Upload External File
+                                </Button>
+                                <p className="text-xs text-gray-500 text-center">Supports CSV/Excel</p>
+                             </div>
+                        </Card>
+                    ))}
+                </div>
             </div>
         );
-      case 'post-job':
+
+      // 2. Approvals
+      case 'approvals':
+        const corporates = store.getCorporates().filter(c => c.status === 'PENDING');
+        const jobs = store.getJobs().filter(j => j.approvalStatus === 'Waiting for Approval');
+
+        return (
+            <div className="space-y-6">
+                <div className="flex space-x-2 border-b border-gray-200 pb-2">
+                    <button onClick={() => setApprovalType('CORPORATE')} className={`px-4 py-2 font-medium ${approvalType === 'CORPORATE' ? 'text-primary border-b-2 border-primary' : 'text-gray-500'}`}>Corporate Approvals</button>
+                    <button onClick={() => setApprovalType('JOB')} className={`px-4 py-2 font-medium ${approvalType === 'JOB' ? 'text-primary border-b-2 border-primary' : 'text-gray-500'}`}>Job Approvals</button>
+                </div>
+
+                {approvalType === 'CORPORATE' ? (
+                    <div className="space-y-4">
+                        {corporates.length === 0 && <p className="text-gray-500">No pending corporate approvals.</p>}
+                        {corporates.map(c => (
+                            <div key={c.id} className="bg-white p-4 rounded shadow border border-gray-100 flex justify-between items-start">
+                                <div>
+                                    <h3 className="font-bold text-lg">{c.companyName}</h3>
+                                    <p className="text-sm text-gray-600">{c.fullName} ({c.designation})</p>
+                                    <p className="text-sm text-gray-500">Email: {c.email} | Mobile: {c.mobile}</p>
+                                    <p className="text-sm text-gray-500">Location: {c.location}</p>
+                                </div>
+                                <div className="flex flex-col space-y-2">
+                                    <Button className="bg-green-600 hover:bg-green-700 text-xs px-3" onClick={() => handleProcessApproval(c.id, 'CORPORATE', 'APPROVE')}>Approve</Button>
+                                    <Button className="bg-red-500 hover:bg-red-600 text-xs px-3" onClick={() => handleProcessApproval(c.id, 'CORPORATE', 'REJECT')}>Reject</Button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {jobs.length === 0 && <p className="text-gray-500">No pending job approvals.</p>}
+                        {jobs.map(j => (
+                            <div key={j.id} className="bg-white p-4 rounded shadow border border-gray-100 flex justify-between items-start">
+                                <div>
+                                    <h3 className="font-bold text-lg">{j.title}</h3>
+                                    <p className="text-sm text-gray-600">{j.company} - {j.location}</p>
+                                    <p className="text-sm text-gray-500">Posted: {j.postedDate}</p>
+                                    <button className="text-primary text-xs underline mt-1" onClick={() => { setJobForm(j as any); setIsPreviewOpen(true); }}>Preview Job</button>
+                                </div>
+                                <div className="flex flex-col space-y-2">
+                                    <Button className="bg-green-600 hover:bg-green-700 text-xs px-3" onClick={() => handleProcessApproval(j.id, 'JOB', 'APPROVE')}>Approve</Button>
+                                    <Button className="bg-red-500 hover:bg-red-600 text-xs px-3" onClick={() => handleProcessApproval(j.id, 'JOB', 'REJECT')}>Reject</Button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Reject Modal */}
+                <Modal isOpen={!!rejectingId} onClose={() => setRejectingId(null)} title={`Reject ${approvalType === 'CORPORATE' ? 'Corporate' : 'Job'}`}>
+                    <div className="space-y-4">
+                        <p className="text-sm text-gray-600">Please provide a reason for rejection:</p>
+                        <textarea className="w-full border rounded p-2" rows={3} value={approvalReason} onChange={e => setApprovalReason(e.target.value)}></textarea>
+                        <div className="flex justify-end space-x-2">
+                            <Button variant="outline" onClick={() => setRejectingId(null)}>Cancel</Button>
+                            <Button className="bg-red-600 text-white" onClick={() => confirmReject(approvalType)}>Confirm Reject</Button>
+                        </div>
+                    </div>
+                </Modal>
+            </div>
+        );
+
+      // 3. Reports
+      case 'reports':
+        return (
+            <div className="space-y-6">
+                 <div className="flex space-x-2 overflow-x-auto border-b border-gray-200 pb-2">
+                    {['CORPORATE', 'JOB', 'CANDIDATE', 'EVENT'].map(t => (
+                        <button key={t} onClick={() => setReportType(t as any)} className={`px-4 py-2 font-medium whitespace-nowrap ${reportType === t ? 'text-primary border-b-2 border-primary' : 'text-gray-500'}`}>
+                            {t.charAt(0) + t.slice(1).toLowerCase()} List
+                        </button>
+                    ))}
+                </div>
+
+                <div className="flex justify-end space-x-2 mb-4">
+                     <Button variant="outline" className="text-xs" onClick={() => handleDownload('Excel')}><i className="fas fa-file-excel mr-1 text-green-600"></i> Excel</Button>
+                     <Button variant="outline" className="text-xs" onClick={() => handleDownload('CSV')}><i className="fas fa-file-csv mr-1 text-green-600"></i> CSV</Button>
+                     <Button variant="outline" className="text-xs" onClick={() => handleDownload('PDF')}><i className="fas fa-file-pdf mr-1 text-red-600"></i> PDF</Button>
+                </div>
+
+                <div className="overflow-x-auto bg-white rounded shadow">
+                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                        {reportType === 'CORPORATE' && (
+                            <>
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        {['Full Name', 'Company Name', 'Email', 'Mobile No', 'Designation', 'Location', 'Status', 'Status Reason', 'Preview'].map(h => <th key={h} className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">{h}</th>)}
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {store.getCorporates().map(c => (
+                                        <tr key={c.id}>
+                                            <td className="px-6 py-4">{c.fullName}</td>
+                                            <td className="px-6 py-4 font-medium">{c.companyName}</td>
+                                            <td className="px-6 py-4">{c.email}</td>
+                                            <td className="px-6 py-4">{c.mobile}</td>
+                                            <td className="px-6 py-4">{c.designation}</td>
+                                            <td className="px-6 py-4">{c.location}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${c.status === 'APPROVED' ? 'bg-green-100 text-green-800' : c.status === 'REJECTED' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                                    {c.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-gray-500">{c.statusReason || '-'}</td>
+                                            <td className="px-6 py-4"><button className="text-blue-600 hover:text-blue-900">View</button></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </>
+                        )}
+                        {reportType === 'JOB' && (
+                            <>
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        {['Job Title', 'Job Type', 'Work Location', 'Salary', 'Expiry Date', 'Status', 'Preview'].map(h => <th key={h} className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">{h}</th>)}
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {store.getJobs().map(j => (
+                                        <tr key={j.id}>
+                                            <td className="px-6 py-4 font-medium">{j.title}</td>
+                                            <td className="px-6 py-4">{j.jobType}</td>
+                                            <td className="px-6 py-4">{j.location}</td>
+                                            <td className="px-6 py-4">{j.salaryMin} - {j.salaryMax}</td>
+                                            <td className="px-6 py-4">{j.expiryDate}</td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${j.approvalStatus === 'Approved' ? 'bg-green-100 text-green-800' : j.approvalStatus === 'Rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                                    {j.approvalStatus}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4"><button onClick={() => { setJobForm(j as any); setIsPreviewOpen(true); }} className="text-blue-600 hover:text-blue-900">View</button></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </>
+                        )}
+                        {reportType === 'CANDIDATE' && (
+                            <>
+                                <div className="p-4 bg-gray-50 border-b">
+                                    <h4 className="text-sm font-bold mb-2">Select Columns:</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {allCandidateColumns.map(col => (
+                                            <label key={col} className="inline-flex items-center bg-white border border-gray-300 rounded px-2 py-1 text-xs cursor-pointer hover:bg-gray-50">
+                                                <input type="checkbox" className="mr-2" checked={candidateColumns.includes(col)} onChange={() => toggleCandidateColumn(col)} />
+                                                {col}
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                        {candidateColumns.map(col => <th key={col} className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">{col}</th>)}
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {store.getCandidates().map(c => (
+                                        <tr key={c.id}>
+                                            <td className="px-6 py-4 font-bold">{c.name}</td>
+                                            {candidateColumns.map(col => {
+                                                // Map readable column names to data keys
+                                                const keyMap: any = {
+                                                    "Mobile No": 'mobile', "Date of Birth": 'dob', "Pin Code": 'pincode', "Preferred Cities": 'preferredCities', 
+                                                    "LinkedIn": 'linkedin', "Preferred Job Type": 'preferredJobType', "Preferred Role Type": 'preferredRole', "Is Fresher": 'isFresher',
+                                                    "Highest Education": 'highestEducation', "Job Fair Enrolled": 'jobFairEnrolled', "Created By": 'createdBy', "Created On": 'createdOn', "CV": 'cvLink'
+                                                };
+                                                const key = keyMap[col] || col.toLowerCase();
+                                                return <td key={col} className="px-6 py-4">{(c as any)[key] || '-'}</td>
+                                            })}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </>
+                        )}
+                         {reportType === 'EVENT' && (
+                            <>
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        {['Job Fair Name', 'Location', 'Date', 'Active', 'Candidate Count', 'Action'].map(h => <th key={h} className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">{h}</th>)}
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {store.getEvents().map(e => (
+                                        <tr key={e.id}>
+                                            <td className="px-6 py-4 font-medium">{e.title}</td>
+                                            <td className="px-6 py-4">{e.location}</td>
+                                            <td className="px-6 py-4">{e.date}</td>
+                                            <td className="px-6 py-4">{new Date(e.date) >= new Date() ? 'Yes' : 'No'}</td>
+                                            <td className="px-6 py-4">120</td>
+                                            <td className="px-6 py-4"><button className="text-blue-600 hover:text-blue-900">Manage</button></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </>
+                        )}
+                    </table>
+                </div>
+            </div>
+        );
+
+      // 4. Job Posting
+      case 'job-posting':
         return (
           <>
           <div className="space-y-6">
@@ -449,8 +578,8 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                  <Select label="Receive Apps From" options={['Pan India', 'Overseas', 'Selected Region']} value={jobForm.receiveAppsFrom} onChange={e => handleJobChange('receiveAppsFrom', e.target.value)} />
 
                  {/* Row 8 */}
-                 <Input label="Job Expiry Date" type="date" value={jobForm.expiryDate} onChange={e => handleJobChange('expiryDate', e.target.value)} />
-                 <Select label="Status" options={['Waiting for Approval', 'Approved', 'Rejected']} value={jobForm.status} onChange={e => handleJobChange('status', e.target.value)} />
+                 <Input label="Job Expiry Date (Max 90 days)" type="date" value={jobForm.expiryDate} onChange={e => handleJobChange('expiryDate', e.target.value)} />
+                 <Select label="Status" options={['Approved', 'Rejected', 'Waiting for Approval']} value={jobForm.status} onChange={e => handleJobChange('status', e.target.value)} disabled={userType === UserType.CORPORATE} />
                  <div className="md:col-span-3">
                      <label className="block text-sm font-medium text-gray-700 mb-1">Status Reason (Internal Note)</label>
                      <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} value={jobForm.statusReason} onChange={e => handleJobChange('statusReason', e.target.value)}></textarea>
@@ -472,8 +601,7 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                   <div>
                       <h4 className="text-sm font-bold text-yellow-800">Important Note</h4>
                       <p className="text-sm text-yellow-700 mt-1">
-                          All job postings are subject to verification and approval by the Admin before going live on the job board. 
-                          You can track the status of your posting in the 'Approvals' or 'Active Jobs' section.
+                          All job postings are subject to verification and approval by the Admin before going live on the job board.
                       </p>
                   </div>
               </div>
@@ -534,6 +662,8 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
           </Modal>
           </>
         );
+
+      // 5. Blog
       case 'blog':
         return (
            <Card title="AI Blog Writer">
@@ -567,7 +697,9 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
              </div>
            </Card>
         );
-      case 'email':
+
+      // 6. Email Marketing
+      case 'email-marketing':
           return (
             <div className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -663,99 +795,8 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                 </div>
             </div>
           );
-      case 'success-stories':
-          return (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card title={isEditingStory ? "Edit Success Story" : "Add Success Story"}>
-                      <div className="space-y-4">
-                          <Input label="Name" value={storyForm.name} onChange={e => setStoryForm({...storyForm, name: e.target.value})} />
-                          <Input label="Role" value={storyForm.role} onChange={e => setStoryForm({...storyForm, role: e.target.value})} placeholder="e.g. Software Engineer @ Google" />
-                          <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Comment</label>
-                              <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={3} value={storyForm.comment} onChange={e => setStoryForm({...storyForm, comment: e.target.value})}></textarea>
-                          </div>
-                          <Input label="Image URL" value={storyForm.imageUrl} onChange={e => setStoryForm({...storyForm, imageUrl: e.target.value})} />
-                          <div className="flex gap-2">
-                             <Button onClick={handleAddStory}>{isEditingStory ? "Update Story" : "Add Story"}</Button>
-                             {isEditingStory && <Button variant="outline" onClick={() => {setIsEditingStory(false); setStoryForm({ id: '', name: '', role: '', comment: '', imageUrl: 'https://i.pravatar.cc/150' })}}>Cancel</Button>}
-                          </div>
-                      </div>
-                  </Card>
-                  
-                  <div className="space-y-4">
-                      {stories.map(s => (
-                          <div key={s.id} className="bg-white p-4 rounded shadow flex items-start space-x-4 relative group">
-                               <img src={s.imageUrl} alt={s.name} className="w-12 h-12 rounded-full object-cover" />
-                               <div className="flex-1">
-                                   <div className="font-bold">{s.name}</div>
-                                   <div className="text-xs text-gray-500 mb-1">{s.role}</div>
-                                   <p className="text-sm text-gray-600 italic">"{s.comment}"</p>
-                               </div>
-                               <div className="flex flex-col space-y-1">
-                                 <button onClick={() => handleEditStory(s)} className="text-blue-500 hover:text-blue-700 text-xs">Edit</button>
-                                 <button onClick={() => handleDeleteStory(s.id)} className="text-red-500 hover:text-red-700 text-xs">Delete</button>
-                               </div>
-                          </div>
-                      ))}
-                  </div>
-              </div>
-          );
-      case 'gallery':
-          return (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card title="Add to Gallery">
-                      <div className="space-y-4">
-                          <Input label="Title" value={galleryForm.title} onChange={e => setGalleryForm({...galleryForm, title: e.target.value})} />
-                          <Input label="Image/Video URL" value={galleryForm.url} onChange={e => setGalleryForm({...galleryForm, url: e.target.value})} />
-                          <Select label="Type" options={['image', 'video']} value={galleryForm.type} onChange={e => setGalleryForm({...galleryForm, type: e.target.value})} />
-                          <Button onClick={handleAddGalleryItem}>Add to Gallery</Button>
-                      </div>
-                  </Card>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                      {galleryItems.map(item => (
-                          <div key={item.id} className="relative group bg-gray-100 rounded overflow-hidden aspect-video">
-                              <img src={item.url} alt={item.title} className="w-full h-full object-cover" />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                  <button onClick={() => handleDeleteGalleryItem(item.id)} className="bg-red-600 text-white px-3 py-1 rounded text-xs">Delete</button>
-                              </div>
-                              <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/60 text-white text-xs truncate">
-                                  {item.title}
-                              </div>
-                          </div>
-                      ))}
-                  </div>
-              </div>
-          );
-      case 'manage-events':
-          return (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card title="Create New Event">
-                      <div className="space-y-4">
-                          <Input label="Event Title" value={eventForm.title} onChange={e => setEventForm({...eventForm, title: e.target.value})} />
-                          <Input label="Date" type="date" value={eventForm.date} onChange={e => setEventForm({...eventForm, date: e.target.value})} />
-                          <Input label="Location" value={eventForm.location} onChange={e => setEventForm({...eventForm, location: e.target.value})} />
-                          <Input label="Image URL" value={eventForm.imageUrl} onChange={e => setEventForm({...eventForm, imageUrl: e.target.value})} />
-                          <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                              <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={3} value={eventForm.description} onChange={e => setEventForm({...eventForm, description: e.target.value})}></textarea>
-                          </div>
-                          <Button onClick={handleAddEvent}>Create Event</Button>
-                      </div>
-                  </Card>
-                  
-                  <Card title="Existing Events">
-                    <div className="space-y-4">
-                         {store.getEvents().map(e => (
-                             <div key={e.id} className="p-3 border-b border-gray-100 last:border-0">
-                                 <div className="font-bold">{e.title}</div>
-                                 <div className="text-xs text-gray-500">{e.date} • {e.location}</div>
-                             </div>
-                         ))}
-                    </div>
-                  </Card>
-              </div>
-          );
+
+      // Fallback for inaccessible tabs or removed ones
       default:
         return <div>Select an item from the sidebar.</div>;
     }
@@ -769,6 +810,7 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                   <div className="flex space-x-2">
                       <button onClick={() => setCandidateTab('overview')} className={`px-4 py-2 rounded-md text-sm font-medium ${candidateTab === 'overview' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>Overview</button>
                       <button onClick={() => setCandidateTab('profile')} className={`px-4 py-2 rounded-md text-sm font-medium ${candidateTab === 'profile' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>My Profile</button>
+                      <button onClick={() => setCandidateTab('saved')} className={`px-4 py-2 rounded-md text-sm font-medium ${candidateTab === 'saved' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>Saved Jobs</button>
                   </div>
               </div>
 
@@ -787,10 +829,55 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                           <Button variant="outline" className="mt-4 w-full text-xs">View Applications</Button>
                       </Card>
                       <Card title="Saved Jobs">
-                          <div className="text-3xl font-bold text-accent">2</div>
+                          <div className="text-3xl font-bold text-accent">{savedJobsList.length}</div>
                           <p className="text-xs text-gray-500">Bookmarks</p>
-                          <Button variant="outline" className="mt-4 w-full text-xs">View Saved</Button>
+                          <Button variant="outline" className="mt-4 w-full text-xs" onClick={() => setCandidateTab('saved')}>View Saved</Button>
                       </Card>
+                  </div>
+              ) : candidateTab === 'saved' ? (
+                  <div className="space-y-4">
+                          <div className="flex justify-between items-center mb-4">
+                             <h2 className="text-xl font-bold">Saved Jobs</h2>
+                             <button onClick={() => setCandidateTab('overview')} className="text-sm text-gray-500 hover:text-primary"> Back to Overview</button>
+                          </div>
+                          {savedJobsList.length > 0 ? (
+                              savedJobsList.map(job => (
+                                  <Card key={job.id} className="hover:shadow-md transition-shadow">
+                                      <div className="flex items-start space-x-4">
+                                          <div className="flex-shrink-0">
+                                              {job.companyLogo ? (
+                                                  <img src={job.companyLogo} alt={job.company} className="w-12 h-12 object-contain rounded-md border border-gray-100 p-1" />
+                                              ) : (
+                                                  <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-gray-200">
+                                                      <i className="fas fa-building text-xl"></i>
+                                                  </div>
+                                              )}
+                                          </div>
+                                          <div className="flex-grow">
+                                              <div className="flex justify-between items-start">
+                                                  <div>
+                                                      <h3 className="text-lg font-bold text-primary">{job.title}</h3>
+                                                      <p className="font-medium text-sm text-gray-700">{job.company}</p>
+                                                      <p className="text-xs text-gray-500 mt-1"><i className="fas fa-map-marker-alt mr-1"></i> {job.location} • {job.category}</p>
+                                                  </div>
+                                                  <div className="flex space-x-2">
+                                                      <Button variant="outline" className="text-xs border-red-200 text-red-500 hover:bg-red-50" onClick={() => handleUnsaveJob(job.id)}>
+                                                          <i className="fas fa-trash mr-1"></i> Remove
+                                                      </Button>
+                                                      <Button className="text-xs">Apply Now</Button>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </Card>
+                              ))
+                          ) : (
+                              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                                  <i className="far fa-heart text-4xl text-gray-300 mb-3"></i>
+                                  <p className="text-gray-500">You haven't saved any jobs yet.</p>
+                                  <Button variant="outline" className="mt-4" onClick={() => {}}>Browse Jobs</Button>
+                              </div>
+                          )}
                   </div>
               ) : (
                   <Card title="My Profile Details">
@@ -864,7 +951,7 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} userType={userType} />
       <div className="flex-1 p-8 overflow-y-auto">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 capitalize">{activeTab.replace('-', ' ')}</h1>
         {renderContent()}

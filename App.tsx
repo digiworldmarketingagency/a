@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Header, Footer, AdminSidebar } from './components/Layout';
+import { Header, Footer } from './components/Layout';
 import { store } from './services/store';
 import { UserType } from './types';
 import Home from './pages/Home';
@@ -30,7 +30,17 @@ const App: React.FC = () => {
   const handleLogin = (userType: UserType) => {
     store.login(userType);
     setUser(userType);
-    handleNavigate(userType === UserType.ADMIN || userType === UserType.CORPORATE ? 'dashboard' : 'home');
+    
+    // Redirect logic based on user type
+    if (userType === UserType.CANDIDATE) {
+        handleNavigate('jobboard');
+    } else if (userType === UserType.CORPORATE) {
+        handleNavigate('dashboard');
+    } else if (userType === UserType.ADMIN) {
+        handleNavigate('dashboard');
+    } else {
+        handleNavigate('home');
+    }
   };
 
   const handleLogout = () => {

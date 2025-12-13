@@ -15,6 +15,18 @@ export interface User {
   status?: 'PENDING' | 'APPROVED' | 'REJECTED';
 }
 
+export interface CorporateUser {
+    id: string;
+    fullName: string;
+    companyName: string;
+    email: string;
+    mobile: string;
+    designation: string;
+    location: string;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    statusReason?: string;
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -88,6 +100,33 @@ export interface GalleryItem {
   type: 'image' | 'video';
   url: string;
   title: string;
+}
+
+export interface CandidateListing {
+  id: string;
+  name: string;
+  title: string;
+  location: string;
+  experience: string; // e.g. "5 Years"
+  qualification: string; // e.g. "B.Tech"
+  skills: string[];
+  email: string; // Hidden until unlocked?
+  mobile?: string;
+  dob?: string;
+  pincode?: string;
+  state?: string;
+  city?: string;
+  area?: string;
+  preferredCities?: string;
+  linkedin?: string;
+  preferredJobType?: string;
+  preferredRole?: string;
+  isFresher?: string;
+  highestEducation?: string;
+  jobFairEnrolled?: string;
+  createdBy?: string;
+  createdOn?: string;
+  cvLink?: string;
 }
 
 export interface CandidateProfile {
