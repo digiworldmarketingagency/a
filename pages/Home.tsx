@@ -5,6 +5,7 @@ import { store } from '../services/store';
 const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) => {
   const [search, setSearch] = useState({ title: '', location: '', category: '' });
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+  const [showAllCompanies, setShowAllCompanies] = useState(false);
 
   // Filter only upcoming events for home page
   const events = store.getEvents()
@@ -19,12 +20,73 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
   const activeBanners = store.getBanners().filter(b => b.isActive);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
 
+  // Popular Jobs State
+  const [popularFilter, setPopularFilter] = useState('All');
+  const popularJobsData = [
+    { id: 'p1', title: 'Junior Graphic Designer (Web)', featured: true, categories: ['Design', 'Development'], location: 'New York', salary: '$150 - $180 / week', type: 'Full Time', urgent: true, logo: 'O', color: 'bg-blue-600' },
+    { id: 'p2', title: 'Finance Manager & Health', featured: true, categories: ['Design', 'Health'], location: 'New York', salary: '$450 - $500 / month', type: 'Full Time', urgent: true, logo: 'M', color: 'bg-gray-900' },
+    { id: 'p3', title: 'General Ledger Accountant', featured: true, categories: ['Design', 'Marketing'], location: 'New York', salary: '$50 - $68 / day', type: 'Full Time', urgent: false, logo: 'Up', color: 'bg-green-500' },
+    { id: 'p4', title: 'UX/UI Designer Web', featured: false, categories: ['Design', 'Development'], location: 'Paris', salary: '$650 - $700 / month', type: 'Freelance', urgent: false, logo: 'M', color: 'bg-pink-600' },
+    { id: 'p5', title: 'Senior Product Designer', featured: false, categories: ['Design'], location: 'New York', salary: '$250 - $300 / month', type: 'Part Time', urgent: true, logo: 'S', color: 'bg-indigo-600' },
+    { id: 'p6', title: 'Data Privacy Support', featured: false, categories: ['Customer', 'Design'], location: 'London', salary: '$300 - $500 / month', type: 'Full Time', urgent: false, logo: 'M', color: 'bg-gray-900' },
+  ];
+
+  const filteredPopularJobs = popularJobsData.filter(job => 
+    popularFilter === 'All' || job.categories.includes(popularFilter)
+  );
+
+  // Top Companies Carousel State
+  const [companyPage, setCompanyPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(4);
+  
+  const topCompanies = [
+    { id: 'c1', name: 'Employer', location: 'New York', openJobs: 1, logo: 'O', bg: 'bg-blue-500', text: 'text-white' },
+    { id: 'c2', name: 'Udemy', location: 'New York', openJobs: 1, logo: 'U', bg: 'bg-red-50', text: 'text-red-500' },
+    { id: 'c3', name: 'Medium', location: 'New York', openJobs: 3, logo: 'M', bg: 'bg-black', text: 'text-white' },
+    { id: 'c4', name: 'Sagments', location: 'New York', openJobs: 2, logo: 'S', bg: 'bg-slate-800', text: 'text-green-400' },
+    { id: 'c5', name: 'Google', location: 'Mountain View', openJobs: 5, logo: 'G', bg: 'bg-blue-100', text: 'text-blue-600' },
+    { id: 'c6', name: 'Amazon', location: 'Seattle', openJobs: 8, logo: 'A', bg: 'bg-yellow-100', text: 'text-yellow-600' },
+    { id: 'c7', name: 'Microsoft', location: 'Redmond', openJobs: 4, logo: 'M', bg: 'bg-green-100', text: 'text-green-600' },
+    { id: 'c8', name: 'Apple', location: 'Cupertino', openJobs: 2, logo: 'A', bg: 'bg-gray-100', text: 'text-gray-800' },
+  ];
+
+  const allCompanies = [
+    ...topCompanies,
+    { id: 'c9', name: 'Netflix', location: 'Los Gatos', openJobs: 3, logo: 'N', bg: 'bg-red-600', text: 'text-white' },
+    { id: 'c10', name: 'Tesla', location: 'Austin', openJobs: 6, logo: 'T', bg: 'bg-red-500', text: 'text-white' },
+    { id: 'c11', name: 'Adobe', location: 'San Jose', openJobs: 4, logo: 'A', bg: 'bg-red-700', text: 'text-white' },
+    { id: 'c12', name: 'Salesforce', location: 'San Francisco', openJobs: 7, logo: 'S', bg: 'bg-blue-400', text: 'text-white' },
+    { id: 'c13', name: 'Spotify', location: 'Stockholm', openJobs: 2, logo: 'S', bg: 'bg-green-500', text: 'text-white' },
+    { id: 'c14', name: 'Twitter', location: 'San Francisco', openJobs: 1, logo: 'T', bg: 'bg-blue-400', text: 'text-white' },
+    { id: 'c15', name: 'Airbnb', location: 'San Francisco', openJobs: 3, logo: 'A', bg: 'bg-rose-500', text: 'text-white' },
+    { id: 'c16', name: 'Uber', location: 'San Francisco', openJobs: 5, logo: 'U', bg: 'bg-black', text: 'text-white' },
+  ];
+
+  const totalCompanyPages = Math.ceil(topCompanies.length / itemsPerPage);
+  const visibleCompanies = topCompanies.slice(companyPage * itemsPerPage, (companyPage + 1) * itemsPerPage);
+
   useEffect(() => {
-    if (activeBanners.length <= 1) return;
-    const interval = setInterval(() => {
-        setCurrentBannerIndex((prev) => (prev + 1) % activeBanners.length);
-    }, 5000);
-    return () => clearInterval(interval);
+    // Banner Interval
+    let interval: any;
+    if (activeBanners.length > 1) {
+        interval = setInterval(() => {
+            setCurrentBannerIndex((prev) => (prev + 1) % activeBanners.length);
+        }, 5000);
+    }
+
+    // Responsive Carousel Logic
+    const handleResize = () => {
+        if (window.innerWidth < 640) setItemsPerPage(1);
+        else if (window.innerWidth < 1024) setItemsPerPage(2);
+        else setItemsPerPage(4);
+    };
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+        clearInterval(interval);
+        window.removeEventListener('resize', handleResize);
+    };
   }, [activeBanners.length]);
 
   const handleFindJobs = () => {
@@ -153,62 +215,8 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
         </div>
       </div>
 
-      {/* Upcoming Events Carousel */}
-      <div className="py-16 max-w-7xl mx-auto px-4 bg-gray-50">
-        <div className="flex justify-between items-center mb-8">
-           <h2 className="text-3xl font-bold text-gray-800">Upcoming Events</h2>
-           <Button variant="outline" onClick={() => onNavigate('events')}>View All Events</Button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {events.length > 0 ? events.map(ev => (
-            <Card key={ev.id} className="hover:shadow-lg transition-shadow group cursor-pointer">
-              <div className="overflow-hidden h-48 relative">
-                 <img src={ev.imageUrl} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                 <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded shadow text-xs font-bold text-gray-800">
-                    {new Date(ev.date).toLocaleDateString()}
-                 </div>
-              </div>
-              <div className="p-4">
-                <h3 className="font-bold text-lg mb-2 text-primary group-hover:text-teal-700">{ev.title}</h3>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{ev.description}</p>
-                <div className="flex items-center text-xs text-gray-500 mb-4">
-                   <i className="fas fa-map-marker-alt mr-1"></i> {ev.location}
-                </div>
-                <Button variant="secondary" className="w-full">Register</Button>
-              </div>
-            </Card>
-          )) : <p>No upcoming events.</p>}
-        </div>
-      </div>
-
-      {/* Creative Gallery */}
-      <div className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Gallery</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {creatives.map(c => (
-              <div 
-                key={c.id} 
-                className="relative group cursor-pointer overflow-hidden rounded-lg aspect-square bg-gray-200"
-                onClick={() => setLightboxImg(c.url)}
-              >
-                <img src={c.url} alt={c.title} className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
-                {c.type === 'video' && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                     <i className="fas fa-play-circle text-white text-4xl opacity-80 drop-shadow-lg"></i>
-                  </div>
-                )}
-                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                  {c.title}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Featured Jobs */}
-      <div className="bg-gray-100 py-16">
+      {/* Featured Jobs - Moved here replacing Upcoming Events */}
+      <div className="bg-gray-50 py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
              <h2 className="text-3xl font-bold text-gray-800 mb-2">Featured Jobs</h2>
@@ -247,6 +255,152 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
           </div>
           <div className="text-center mt-8">
              <Button onClick={() => onNavigate('jobboard')} className="px-8">View All Jobs</Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Most Popular Jobs Section */}
+      <div className="bg-white py-16 border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center mb-12">
+                  <h2 className="text-3xl font-bold text-gray-800 mb-2">Most Popular Jobs</h2>
+                  <p className="text-gray-500">Know your worth and find the job that qualify your life</p>
+              </div>
+              
+              {/* Filters */}
+              <div className="flex justify-center mb-10">
+                  <div className="inline-flex bg-gray-100 rounded-lg p-1 gap-1">
+                      {['All', 'Design', 'Marketing', 'Health', 'Development'].map(filter => (
+                          <button
+                              key={filter}
+                              onClick={() => setPopularFilter(filter)}
+                              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                                  popularFilter === filter
+                                  ? 'bg-white text-gray-900 shadow-sm'
+                                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                              }`}
+                          >
+                              {filter}
+                          </button>
+                      ))}
+                  </div>
+              </div>
+
+              {/* Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                  {filteredPopularJobs.map(job => (
+                      <div key={job.id} className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg transition-shadow relative">
+                          {/* Bookmark */}
+                          <button className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
+                              <i className="far fa-bookmark"></i>
+                          </button>
+                          
+                          <div className="flex gap-4">
+                              <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-xl shrink-0 ${job.color}`}>
+                                  {job.logo}
+                              </div>
+                              <div className="flex-1">
+                                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                                      <h3 className="font-bold text-lg text-gray-900 leading-tight">{job.title}</h3>
+                                      {job.featured && <span className="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Featured</span>}
+                                  </div>
+                                  <div className="flex flex-wrap items-center text-xs text-gray-500 gap-y-1 gap-x-3 mt-2">
+                                      <span className="flex items-center"><i className="fas fa-layer-group mr-1.5 text-gray-400"></i>{job.categories.join(', ')}</span>
+                                      <span className="flex items-center"><i className="fas fa-map-marker-alt mr-1.5 text-gray-400"></i>{job.location}</span>
+                                      <span className="flex items-center"><i className="fas fa-dollar-sign mr-1.5 text-gray-400"></i>{job.salary.replace('$','')}</span>
+                                  </div>
+                              </div>
+                          </div>
+                          
+                          <div className="mt-6 flex gap-3">
+                              <span className="px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold">
+                                  {job.type}
+                              </span>
+                              {job.urgent && (
+                                  <span className="px-4 py-1.5 rounded-full bg-yellow-50 text-yellow-600 text-xs font-bold">
+                                      Urgent
+                                  </span>
+                              )}
+                          </div>
+                      </div>
+                  ))}
+              </div>
+          </div>
+      </div>
+
+      {/* Top Companies Registered Section */}
+      <div className="bg-white py-16 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4">
+           <div className="flex flex-col md:flex-row justify-between items-end mb-12">
+              <div className="text-center md:text-left w-full md:w-auto mb-4 md:mb-0">
+                 <h2 className="text-3xl font-bold text-gray-800 mb-2">Top Companies Registered</h2>
+                 <p className="text-gray-500">Some of the companies we've helped recruit excellent applicants over the years.</p>
+              </div>
+              <button onClick={() => setShowAllCompanies(true)} className="text-primary font-bold hover:underline hidden md:block">Browse All Companies &gt;</button>
+           </div>
+           
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+              {visibleCompanies.map(company => (
+                 <div key={company.id} className="bg-white border border-gray-100 rounded-xl p-8 text-center hover:shadow-xl transition-all duration-300 group cursor-pointer">
+                     <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center text-2xl font-bold mb-6 ${company.bg} ${company.text}`}>
+                         {company.logo}
+                     </div>
+                     <h3 className="font-bold text-lg text-gray-900 mb-2">{company.name}</h3>
+                     <div className="text-gray-400 text-sm mb-8 flex items-center justify-center">
+                         <i className="fas fa-map-marker-alt mr-2 text-gray-300"></i> {company.location}
+                     </div>
+                     <button 
+                        onClick={() => onNavigate('jobboard')}
+                        className="w-full bg-blue-50 text-primary font-bold py-3 rounded-lg group-hover:bg-primary group-hover:text-white transition-colors text-sm"
+                     >
+                         Open Jobs - {company.openJobs}
+                     </button>
+                 </div>
+              ))}
+           </div>
+
+           {/* Pagination Dots */}
+           {totalCompanyPages > 1 && (
+               <div className="flex justify-center space-x-2">
+                   {Array.from({ length: totalCompanyPages }).map((_, idx) => (
+                       <button 
+                          key={idx} 
+                          onClick={() => setCompanyPage(idx)}
+                          className={`h-2 rounded-full transition-all duration-300 ${companyPage === idx ? 'bg-gray-800 w-8' : 'bg-gray-300 w-2 hover:bg-gray-400'}`}
+                       ></button>
+                   ))}
+               </div>
+           )}
+           
+           {/* Mobile View All Button */}
+           <div className="mt-8 text-center md:hidden">
+              <button onClick={() => setShowAllCompanies(true)} className="text-primary font-bold hover:underline">Browse All Companies &gt;</button>
+           </div>
+        </div>
+      </div>
+
+      {/* Creative Gallery */}
+      <div className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">Gallery</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {creatives.map(c => (
+              <div 
+                key={c.id} 
+                className="relative group cursor-pointer overflow-hidden rounded-lg aspect-square bg-gray-200"
+                onClick={() => setLightboxImg(c.url)}
+              >
+                <img src={c.url} alt={c.title} className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
+                {c.type === 'video' && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                     <i className="fas fa-play-circle text-white text-4xl opacity-80 drop-shadow-lg"></i>
+                  </div>
+                )}
+                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  {c.title}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -297,6 +451,32 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
            <img src={lightboxImg} alt="Lightbox" className="max-w-full max-h-screen rounded" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
+
+      {/* All Companies Modal */}
+      <Modal isOpen={showAllCompanies} onClose={() => setShowAllCompanies(false)} title="Registered Companies">
+        <div className="max-h-[70vh] overflow-y-auto p-1">
+            <p className="text-sm text-gray-500 mb-4">Browse our comprehensive list of registered corporate partners.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {allCompanies.map(company => (
+                    <div key={company.id} className="bg-white border border-gray-100 rounded-lg p-4 flex items-center space-x-3 hover:shadow-md transition-shadow cursor-pointer" onClick={() => { setShowAllCompanies(false); onNavigate('jobboard'); }}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${company.bg} ${company.text}`}>
+                            {company.logo}
+                        </div>
+                        <div>
+                            <h4 className="font-bold text-gray-800 text-sm">{company.name}</h4>
+                            <div className="text-xs text-gray-500">{company.location}</div>
+                        </div>
+                        <div className="ml-auto text-xs font-bold text-primary bg-blue-50 px-2 py-1 rounded-full whitespace-nowrap">
+                            {company.openJobs} Jobs
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="mt-6 text-center">
+                <Button onClick={() => { setShowAllCompanies(false); onNavigate('register-corporate'); }} className="text-sm">Register Your Company</Button>
+            </div>
+        </div>
+      </Modal>
     </div>
   );
 };
