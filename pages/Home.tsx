@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Button, Input, Select, Modal } from '../components/Shared';
 import { store } from '../services/store';
 
@@ -16,6 +16,17 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
   const successStories = store.getSuccessStories();
   const creatives = store.getGallery();
 
+  const activeBanners = store.getBanners().filter(b => b.isActive);
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+
+  useEffect(() => {
+    if (activeBanners.length <= 1) return;
+    const interval = setInterval(() => {
+        setCurrentBannerIndex((prev) => (prev + 1) % activeBanners.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [activeBanners.length]);
+
   const handleFindJobs = () => {
     // Save search criteria to store so JobBoard can read it
     store.setSearchCriteria(search);
@@ -24,9 +35,43 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
 
   return (
     <div>
+      {/* Banner Carousel Section */}
+      {activeBanners.length > 0 && (
+          <div className={`relative h-64 overflow-hidden transition-colors duration-500 ${activeBanners[currentBannerIndex].style}`}>
+             <div className="absolute inset-0 flex items-center justify-center text-center px-4">
+                 <div className={`max-w-4xl ${activeBanners[currentBannerIndex].style.includes('text-gray-900') ? 'text-gray-900' : 'text-white'}`}>
+                     <h2 className="text-4xl font-bold mb-4 drop-shadow-md transition-all duration-500 transform translate-y-0 opacity-100">
+                         {activeBanners[currentBannerIndex].title}
+                     </h2>
+                     <p className="text-xl mb-6 drop-shadow opacity-90">
+                         {activeBanners[currentBannerIndex].description}
+                     </p>
+                     <Button 
+                        onClick={() => onNavigate(activeBanners[currentBannerIndex].link.replace('/', ''))}
+                        className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-8 py-3 rounded-full shadow-lg"
+                     >
+                         {activeBanners[currentBannerIndex].buttonText}
+                     </Button>
+                 </div>
+             </div>
+             {/* Indicators */}
+             {activeBanners.length > 1 && (
+                 <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+                     {activeBanners.map((_, idx) => (
+                         <button 
+                            key={idx} 
+                            onClick={() => setCurrentBannerIndex(idx)}
+                            className={`w-3 h-3 rounded-full ${idx === currentBannerIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/80'} transition-all`}
+                         ></button>
+                     ))}
+                 </div>
+             )}
+          </div>
+      )}
+
       {/* Hero Section */}
       <div 
-        className="relative h-[650px] flex items-center justify-center bg-cover"
+        className="relative h-[550px] flex items-center justify-center bg-cover"
         style={{ 
           backgroundImage: "url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')",
           backgroundPosition: 'center 20%' // Ensures faces are not cut off at the top

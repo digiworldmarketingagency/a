@@ -146,3 +146,14 @@ export interface CorporateProfile {
   gst: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
 }
+
+export interface Banner {
+  id: string;
+  name: string; // Template Name
+  style: string; // Tailwind Gradient/Color classes
+  title: string;
+  description: string;
+  buttonText: string;
+  link: string;
+  isActive: boolean;
+}

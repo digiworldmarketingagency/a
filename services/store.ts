@@ -1,4 +1,4 @@
-import { User, UserType, Job, Event, Blog, EmailTemplate, SuccessStory, GalleryItem, CandidateListing, CorporateUser } from '../types';
+import { User, UserType, Job, Event, Blog, EmailTemplate, SuccessStory, GalleryItem, CandidateListing, CorporateUser, Banner } from '../types';
 
 // Mock Data
 const MOCK_JOBS: Job[] = [
@@ -114,6 +114,19 @@ const MOCK_GALLERY: GalleryItem[] = [
     { id: '4', type: 'image', url: 'https://picsum.photos/400/300?random=53', title: 'Job Fair' },
 ];
 
+const MOCK_BANNERS: Banner[] = [
+  { id: '1', name: 'Mega Job Fair', style: 'bg-gradient-to-r from-blue-600 to-indigo-700', title: 'Mega Job Fair 2024', description: 'Join us for the biggest hiring event of the year.', buttonText: 'Register Now', link: '/events', isActive: true },
+  { id: '2', name: 'Tech Summit', style: 'bg-gradient-to-r from-purple-600 to-pink-600', title: 'Global Tech Summit', description: 'Innovating for a better tomorrow.', buttonText: 'Learn More', link: '/events', isActive: true },
+  { id: '3', name: 'Walk-in Drive', style: 'bg-gradient-to-r from-green-500 to-teal-500', title: 'Walk-in Drive: Sales Executives', description: 'Hiring immediately for Mumbai location.', buttonText: 'View Details', link: '/jobboard', isActive: true },
+  { id: '4', name: 'Resume Workshop', style: 'bg-gradient-to-r from-orange-400 to-red-500', title: 'Free Resume Workshop', description: 'Master the art of CV writing.', buttonText: 'Join Session', link: '/resources', isActive: false },
+  { id: '5', name: 'Corporate Meet', style: 'bg-gradient-to-r from-gray-800 to-gray-900', title: 'Corporate Partners Meet', description: 'Connecting businesses with talent.', buttonText: 'Partner With Us', link: '/register-corporate', isActive: false },
+  { id: '6', name: 'Skill Up', style: 'bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900', title: 'Skill Up Challenge', description: 'Win scholarships by proving your coding skills.', buttonText: 'Start Quiz', link: '/resources', isActive: false },
+  { id: '7', name: 'Summer Internship', style: 'bg-gradient-to-r from-cyan-400 to-blue-500', title: 'Summer Internships 2024', description: 'Apply for paid internships.', buttonText: 'Apply Now', link: '/jobboard', isActive: false },
+  { id: '8', name: 'Webinar Series', style: 'bg-gradient-to-r from-rose-500 to-red-600', title: 'Expert Talk Webinar', description: 'Industry leaders share insights.', buttonText: 'Watch Live', link: '/events', isActive: false },
+  { id: '9', name: 'Career Counseling', style: 'bg-gradient-to-r from-indigo-500 to-purple-500', title: 'Free Career Counseling', description: 'Confused about your path? Talk to experts.', buttonText: 'Book Slot', link: '/resources', isActive: false },
+  { id: '10', name: 'Hackathon', style: 'bg-gradient-to-r from-emerald-500 to-green-600', title: 'National Hackathon', description: 'Build, Break, Innovate.', buttonText: 'Register Team', link: '/events', isActive: false },
+];
+
 export interface ApprovalRequest {
   id: string;
   type: 'CORPORATE' | 'JOB';
@@ -145,6 +158,7 @@ class MockStore {
   emailTemplates: EmailTemplate[] = [...MOCK_TEMPLATES];
   successStories: SuccessStory[] = [...MOCK_STORIES];
   gallery: GalleryItem[] = [...MOCK_GALLERY];
+  banners: Banner[] = [...MOCK_BANNERS];
   
   // Search State
   searchCriteria: SearchCriteria = { title: '', location: '', category: '' };
@@ -264,6 +278,16 @@ class MockStore {
 
   deleteGalleryItem(id: string) {
     this.gallery = this.gallery.filter(g => g.id !== id);
+  }
+
+  // Banner Methods
+  getBanners() { return this.banners; }
+
+  updateBanner(updatedBanner: Banner) {
+    const idx = this.banners.findIndex(b => b.id === updatedBanner.id);
+    if (idx !== -1) {
+      this.banners[idx] = updatedBanner;
+    }
   }
 
   // Search Methods

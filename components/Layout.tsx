@@ -207,6 +207,7 @@ export const AdminSidebar: React.FC<{ activeTab: string, setActiveTab: (t: strin
     { id: 'job-posting', label: 'Job Posting', icon: 'fa-briefcase' },
     { id: 'blog', label: 'Blog', icon: 'fa-pen-fancy' },
     { id: 'email-marketing', label: 'E Mail Marketing', icon: 'fa-envelope' },
+    { id: 'manage-events', label: 'Manage Events', icon: 'fa-calendar-alt' },
   ];
 
   return (

@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { UserType, Job, Blog, EmailTemplate, SuccessStory, Event, GalleryItem, CandidateListing } from '../types';
+import { UserType, Job, Blog, EmailTemplate, SuccessStory, Event, GalleryItem, CandidateListing, Banner } from '../types';
 import { AdminSidebar } from '../components/Layout';
 import { Card, Button, Input, Select, Modal } from '../components/Shared';
 import { store } from '../services/store';
 import { draftBlogPost, generateEmailTemplate } from '../services/geminiService';
+
+const BANNER_TEMPLATES = [
+  { id: 1, name: 'Corporate Blue', style: 'bg-gradient-to-r from-blue-600 to-indigo-700' },
+  { id: 2, name: 'Tech Purple', style: 'bg-gradient-to-r from-purple-600 to-pink-600' },
+  { id: 3, name: 'Fresh Green', style: 'bg-gradient-to-r from-green-500 to-teal-500' },
+  { id: 4, name: 'Warm Orange', style: 'bg-gradient-to-r from-orange-400 to-red-500' },
+  { id: 5, name: 'Dark Elegant', style: 'bg-gradient-to-r from-gray-800 to-gray-900' },
+  { id: 6, name: 'Bright Yellow', style: 'bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900' },
+  { id: 7, name: 'Ocean Cyan', style: 'bg-gradient-to-r from-cyan-400 to-blue-500' },
+  { id: 8, name: 'Rose Red', style: 'bg-gradient-to-r from-rose-500 to-red-600' },
+  { id: 9, name: 'Royal Indigo', style: 'bg-gradient-to-r from-indigo-500 to-purple-500' },
+  { id: 10, name: 'Emerald City', style: 'bg-gradient-to-r from-emerald-500 to-green-600' },
+];
 
 const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
   const [activeTab, setActiveTab] = useState(userType === UserType.CANDIDATE ? 'overview' : 'master');
@@ -66,6 +79,10 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
   const [reportType, setReportType] = useState<'CORPORATE' | 'JOB' | 'CANDIDATE' | 'EVENT'>('CORPORATE');
   const [candidateColumns, setCandidateColumns] = useState<string[]>(['Name', 'Mobile', 'Email', 'Location']);
   
+  // Banner Management State
+  const [banners, setBanners] = useState<Banner[]>(store.getBanners());
+  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
+
   const allCandidateColumns = [
       "Date of Birth", "Mobile No", "Email", "State", "City", "Pin Code", "Area", "Preferred Cities", "LinkedIn", 
       "Preferred Job Type", "Preferred Role Type", "Is Fresher", "Highest Education", "Job Fair Enrolled", "Created By", "Created On", "CV"
@@ -252,6 +269,35 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
   const handleUnsaveJob = (id: string) => {
       store.toggleSaveJob(id);
       setSavedJobsList(store.getSavedJobs());
+  };
+
+  // Banner Handlers
+  const handleToggleBanner = (id: string) => {
+    const banner = banners.find(b => b.id === id);
+    if (banner) {
+      const updated = { ...banner, isActive: !banner.isActive };
+      store.updateBanner(updated);
+      setBanners(store.getBanners());
+    }
+  };
+
+  const handleEditBanner = (banner: Banner) => {
+    setEditingBanner(banner);
+  };
+
+  const handleSaveBanner = () => {
+    if (editingBanner) {
+      store.updateBanner(editingBanner);
+      setBanners(store.getBanners());
+      setEditingBanner(null);
+      alert('Banner template updated successfully!');
+    }
+  };
+
+  const handleApplyTemplateStyle = (style: string) => {
+      if(editingBanner) {
+          setEditingBanner({...editingBanner, style});
+      }
   };
 
   // Mock Profile for Candidate View
@@ -795,6 +841,83 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                 </div>
             </div>
           );
+
+      // 7. Manage Events (Banner Management)
+      case 'manage-events':
+        return (
+           <div className="space-y-6">
+               <Card title="Manage Event Banners">
+                   <p className="text-sm text-gray-600 mb-6">Select which banners appear on the Home Page carousel. Click 'Edit' to modify content or choose a different template style.</p>
+                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                       {banners.map(b => (
+                           <div key={b.id} className={`border rounded-lg overflow-hidden shadow-sm relative ${b.isActive ? 'ring-2 ring-primary' : 'opacity-70'}`}>
+                               {/* Preview */}
+                               <div className={`h-24 p-4 flex flex-col justify-center ${b.style}`}>
+                                   <h4 className={`font-bold text-sm truncate ${b.style.includes('text-gray-900') ? 'text-gray-900' : 'text-white'}`}>{b.title}</h4>
+                                   <p className={`text-xs truncate ${b.style.includes('text-gray-900') ? 'text-gray-800' : 'text-white/80'}`}>{b.description}</p>
+                               </div>
+                               
+                               <div className="p-3 bg-white">
+                                   <div className="flex justify-between items-center mb-2">
+                                       <span className="font-bold text-xs text-gray-700">{b.name}</span>
+                                       <span className={`text-[10px] px-2 py-0.5 rounded-full ${b.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                                           {b.isActive ? 'Active' : 'Inactive'}
+                                       </span>
+                                   </div>
+                                   <div className="flex space-x-2 mt-3">
+                                       <button onClick={() => handleToggleBanner(b.id)} className={`flex-1 text-xs py-1 rounded border ${b.isActive ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-green-200 text-green-600 hover:bg-green-50'}`}>
+                                           {b.isActive ? 'Deactivate' : 'Activate'}
+                                       </button>
+                                       <button onClick={() => handleEditBanner(b)} className="flex-1 text-xs py-1 rounded border border-gray-300 text-gray-700 hover:bg-gray-50">
+                                           Edit
+                                       </button>
+                                   </div>
+                               </div>
+                           </div>
+                       ))}
+                   </div>
+               </Card>
+               
+               {/* Edit Modal */}
+               {editingBanner && (
+                   <Modal isOpen={!!editingBanner} onClose={() => setEditingBanner(null)} title="Edit Banner Template">
+                       <div className="space-y-4">
+                           {/* Template Style Selection */}
+                           <div>
+                               <label className="block text-sm font-medium text-gray-700 mb-2">Choose Template Style</label>
+                               <div className="grid grid-cols-5 gap-2 mb-2">
+                                   {BANNER_TEMPLATES.map(t => (
+                                       <button 
+                                           key={t.id} 
+                                           onClick={() => handleApplyTemplateStyle(t.style)}
+                                           className={`h-8 rounded w-full border-2 ${t.style} ${editingBanner.style === t.style ? 'border-gray-800 scale-110' : 'border-transparent hover:scale-105'} transition-transform shadow-sm`}
+                                           title={t.name}
+                                       ></button>
+                                   ))}
+                               </div>
+                               <p className="text-xs text-gray-500">Selected Style Preview:</p>
+                               <div className={`h-16 w-full rounded mt-1 mb-4 flex items-center justify-center ${editingBanner.style}`}>
+                                   <span className={`text-sm font-bold ${editingBanner.style.includes('text-gray-900') ? 'text-gray-900' : 'text-white'}`}>Preview Text</span>
+                               </div>
+                           </div>
+
+                           <Input label="Title" value={editingBanner.title} onChange={e => setEditingBanner({...editingBanner, title: e.target.value})} />
+                           <div>
+                               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                               <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} value={editingBanner.description} onChange={e => setEditingBanner({...editingBanner, description: e.target.value})}></textarea>
+                           </div>
+                           <Input label="Button Text" value={editingBanner.buttonText} onChange={e => setEditingBanner({...editingBanner, buttonText: e.target.value})} />
+                           <Input label="Link URL" value={editingBanner.link} onChange={e => setEditingBanner({...editingBanner, link: e.target.value})} />
+                           
+                           <div className="flex justify-end space-x-2 pt-4">
+                               <Button variant="outline" onClick={() => setEditingBanner(null)}>Cancel</Button>
+                               <Button onClick={handleSaveBanner}>Save Changes</Button>
+                           </div>
+                       </div>
+                   </Modal>
+               )}
+           </div>
+        );
 
       // Fallback for inaccessible tabs or removed ones
       default:
