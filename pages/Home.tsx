@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Input, Select, Modal } from '../components/Shared';
 import { store } from '../services/store';
+import { SuccessStory } from '../types';
 
 const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) => {
   const [search, setSearch] = useState({ title: '', location: '', category: '' });
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [showAllCompanies, setShowAllCompanies] = useState(false);
+  const [stats, setStats] = useState(store.getStats());
+  
+  // Success Story Modal State
+  const [selectedStory, setSelectedStory] = useState<SuccessStory | null>(null);
 
   // Filter only upcoming events for home page
   const events = store.getEvents()
@@ -131,9 +136,9 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
           </div>
       )}
 
-      {/* Hero Section - Replaced Image with Dark Blue Corporate Color */}
+      {/* Hero Section - Reduced Width */}
       <div className="relative h-[500px] flex items-center justify-center bg-blue-900">
-        <div className="relative max-w-7xl mx-auto px-4 w-full flex flex-col items-center z-10">
+        <div className="relative max-w-5xl mx-auto px-4 w-full flex flex-col items-center z-10">
            <div className="text-white mb-10 text-center max-w-4xl drop-shadow-md">
               <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight tracking-tight">
                   15+ Years of Connecting Talent <br/>
@@ -193,24 +198,82 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
         </div>
       </div>
 
-      {/* Stats Bar */}
+      {/* New 3-Column Section (Employers, Candidates, Resume Assistant) */}
+      <div className="bg-white py-12 relative z-20">
+        <div className="max-w-7xl mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Employers Card */}
+                <div className="bg-gray-500 rounded-xl h-64 relative overflow-hidden group flex items-center shadow-lg transition-transform hover:-translate-y-1">
+                   <div className="absolute right-0 top-0 bottom-0 w-1/2">
+                      <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" alt="Employers" className="h-full w-full object-cover opacity-60 group-hover:opacity-75 transition-opacity" />
+                      <div className="absolute inset-0 bg-gradient-to-l from-transparent to-gray-500"></div>
+                   </div>
+                   <div className="relative z-10 p-8 w-2/3">
+                      <h3 className="text-2xl font-bold text-white mb-2">Employers</h3>
+                      <p className="text-white text-sm mb-4 opacity-90 leading-snug">Find the best talent for your company with our advanced hiring tools.</p>
+                      <Button onClick={() => onNavigate('register-corporate')} className="bg-white text-gray-800 hover:bg-gray-100 text-sm px-4 py-2 border-0 font-bold shadow-sm">Register Account</Button>
+                   </div>
+                </div>
+
+                {/* Candidate Card */}
+                <div className="bg-rose-400 rounded-xl h-64 relative overflow-hidden group flex items-center shadow-lg transition-transform hover:-translate-y-1">
+                   <div className="absolute right-0 top-0 bottom-0 w-1/2">
+                       <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=400" alt="Candidates" className="h-full w-full object-cover opacity-60 group-hover:opacity-75 transition-opacity" />
+                       <div className="absolute inset-0 bg-gradient-to-l from-transparent to-rose-400"></div>
+                   </div>
+                   <div className="relative z-10 p-8 w-2/3">
+                      <h3 className="text-2xl font-bold text-white mb-2">Candidate</h3>
+                      <p className="text-white text-sm mb-4 opacity-90 leading-snug">Register today to find your dream job and boost your career.</p>
+                      <Button onClick={() => onNavigate('register-candidate')} className="bg-white text-rose-500 hover:bg-gray-100 text-sm px-4 py-2 border-0 font-bold shadow-sm">Register Account</Button>
+                   </div>
+                </div>
+
+                {/* Resume Assistant Card */}
+                 <div className="bg-teal-600 rounded-xl h-64 relative overflow-hidden group flex items-center shadow-lg transition-transform hover:-translate-y-1">
+                   <div className="absolute right-0 top-0 bottom-0 w-1/2">
+                       <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=400" alt="Resume" className="h-full w-full object-cover opacity-60 group-hover:opacity-75 transition-opacity" />
+                       <div className="absolute inset-0 bg-gradient-to-l from-transparent to-teal-600"></div>
+                   </div>
+                   <div className="relative z-10 p-8 w-2/3">
+                      <h3 className="text-2xl font-bold text-white mb-2">Resume Assistant</h3>
+                      <p className="text-white text-sm mb-4 opacity-90 leading-snug">Build an ATS-friendly resume in minutes with our AI tool.</p>
+                      <Button onClick={() => onNavigate('resources')} className="bg-white text-teal-600 hover:bg-gray-100 text-sm px-4 py-2 border-0 font-bold shadow-sm">Build Resume</Button>
+                   </div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      {/* Stats Bar - Clickable & Dynamic */}
       <div className="bg-white py-10 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center md:justify-between text-center gap-8">
-          <div className="flex-1 min-w-[150px]">
-            <div className="text-4xl font-extrabold text-primary mb-1">10k+</div>
-            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Jobs Posted</div>
+          <div 
+             className="flex-1 min-w-[150px] cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors group"
+             onClick={() => onNavigate('jobboard')}
+          >
+            <div className="text-4xl font-extrabold text-primary mb-1 group-hover:scale-110 transition-transform">{stats.jobsPosted}</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide group-hover:text-primary">Jobs Posted</div>
           </div>
-          <div className="flex-1 min-w-[150px]">
-            <div className="text-4xl font-extrabold text-primary mb-1">500+</div>
-            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Companies</div>
+          <div 
+             className="flex-1 min-w-[150px] cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors group"
+             onClick={() => setShowAllCompanies(true)}
+          >
+            <div className="text-4xl font-extrabold text-primary mb-1 group-hover:scale-110 transition-transform">{stats.companies}</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide group-hover:text-primary">Companies</div>
           </div>
-          <div className="flex-1 min-w-[150px]">
-            <div className="text-4xl font-extrabold text-primary mb-1">50k+</div>
-            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Candidates</div>
+          <div 
+             className="flex-1 min-w-[150px] cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors group"
+             onClick={() => onNavigate('register-candidate')}
+          >
+            <div className="text-4xl font-extrabold text-primary mb-1 group-hover:scale-110 transition-transform">{stats.candidates}</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide group-hover:text-primary">Candidates</div>
           </div>
-          <div className="flex-1 min-w-[150px]">
-            <div className="text-4xl font-extrabold text-primary mb-1">100+</div>
-            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Events</div>
+          <div 
+             className="flex-1 min-w-[150px] cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors group"
+             onClick={() => onNavigate('events')}
+          >
+            <div className="text-4xl font-extrabold text-primary mb-1 group-hover:scale-110 transition-transform">{stats.events}</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide group-hover:text-primary">Events</div>
           </div>
         </div>
       </div>
@@ -420,15 +483,19 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
          </div>
       </div>
 
-      {/* Testimonials */}
+      {/* Testimonials - Now Clickable & Active */}
       <div className="py-16 bg-teal-900 text-white text-center">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold mb-12">Success Stories</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {successStories.map(story => (
-              <div key={story.id} className="bg-teal-800 p-8 rounded-lg shadow-lg relative">
+              <div 
+                key={story.id} 
+                className="bg-teal-800 p-8 rounded-lg shadow-lg relative cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-teal-700"
+                onClick={() => setSelectedStory(story)}
+              >
                 <i className="fas fa-quote-left text-teal-600 text-4xl absolute top-4 left-4 opacity-30"></i>
-                <p className="text-teal-100 italic mb-6 z-10 relative">"{story.comment}"</p>
+                <p className="text-teal-100 italic mb-6 z-10 relative line-clamp-4">"{story.comment}"</p>
                 <div className="flex items-center justify-center">
                   <div className="w-12 h-12 bg-gray-300 rounded-full mr-3 overflow-hidden">
                      <img src={story.imageUrl} alt={story.name} />
@@ -477,6 +544,28 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
             </div>
         </div>
       </Modal>
+
+      {/* Success Story Detail Modal */}
+      {selectedStory && (
+          <Modal isOpen={!!selectedStory} onClose={() => setSelectedStory(null)} title="Success Story">
+              <div className="text-center p-4">
+                  <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 overflow-hidden shadow-md">
+                      <img src={selectedStory.imageUrl} alt={selectedStory.name} className="w-full h-full object-cover" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-800">{selectedStory.name}</h3>
+                  <p className="text-primary font-medium mb-6">{selectedStory.role}</p>
+                  
+                  <div className="relative bg-teal-50 p-6 rounded-lg text-left">
+                      <i className="fas fa-quote-left text-teal-200 text-4xl absolute top-4 left-4"></i>
+                      <p className="text-gray-700 italic relative z-10 leading-relaxed text-lg">"{selectedStory.comment}"</p>
+                  </div>
+                  
+                  <div className="mt-8 flex justify-center">
+                      <Button onClick={() => setSelectedStory(null)}>Close</Button>
+                  </div>
+              </div>
+          </Modal>
+      )}
     </div>
   );
 };

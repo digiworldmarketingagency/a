@@ -23,43 +23,47 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
     </button>
   );
 
+  // Updated button class: Dynamic width based on text (removed w-40), padding px-4
+  const buttonClass = "bg-primary text-white hover:bg-teal-700 h-10 px-4 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center justify-center whitespace-nowrap";
+
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
+        <div className="flex justify-between h-20 items-center">
+          <div className="flex items-center">
             {/* Logo Section */}
-            <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => onNavigate('home')}>
+            <div className="flex-shrink-0 flex items-center cursor-pointer mr-8" onClick={() => onNavigate('home')}>
                <span className="font-bold text-xl text-primary">AMPOWERJOBS.com</span>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:ml-6 md:flex md:space-x-8 items-center">
-              <button onClick={() => onNavigate('home')} className="text-gray-900 hover:text-primary px-3 py-2 text-sm font-medium">Home</button>
-              <button onClick={() => onNavigate('about')} className="text-gray-500 hover:text-primary px-3 py-2 text-sm font-medium">About Us</button>
-              <button onClick={() => onNavigate('events')} className="text-gray-500 hover:text-primary px-3 py-2 text-sm font-medium">Events</button>
-              <button onClick={() => onNavigate('resources')} className="text-gray-500 hover:text-primary px-3 py-2 text-sm font-medium">Resource Center</button>
-              <button onClick={() => onNavigate('jobboard')} className="text-gray-500 hover:text-primary px-3 py-2 text-sm font-medium">Search Jobs</button>
+            <div className="hidden xl:flex space-x-4 items-center">
+              <button onClick={() => onNavigate('home')} className={buttonClass}>Home</button>
+              <button onClick={() => onNavigate('about')} className={buttonClass}>About Us</button>
+              <button onClick={() => onNavigate('events')} className={buttonClass}>Events</button>
+              <button onClick={() => onNavigate('resources')} className={buttonClass}>Resource Center</button>
+              <button onClick={() => onNavigate('jobboard')} className={buttonClass}>Search Jobs</button>
             </div>
           </div>
-          <div className="hidden md:flex items-center space-x-4">
+          
+          <div className="hidden xl:flex items-center space-x-4">
             {!user ? (
               <>
                 {/* Control Center Button */}
                 <button 
                   onClick={() => onNavigate('login-corporate')} 
-                  className="text-gray-600 hover:text-primary px-3 py-2 text-sm font-medium border border-gray-200 rounded-md hover:border-primary transition-colors flex items-center"
+                  className={buttonClass}
                 >
-                  <i className="fas fa-briefcase mr-1"></i> Control Center
+                  <i className="fas fa-briefcase mr-2"></i> Control Center
                 </button>
 
                 {/* Registration Dropdown */}
                 <div className="relative">
                   <button 
                     onClick={() => { setIsRegOpen(!isRegOpen); setIsLoginOpen(false); }}
-                    className="text-gray-500 hover:text-primary px-3 py-2 text-sm font-medium flex items-center"
+                    className={buttonClass}
                   >
-                    Registration <i className="fas fa-chevron-down ml-1 text-xs"></i>
+                    Registration <i className="fas fa-chevron-down ml-2 text-xs"></i>
                   </button>
                   {isRegOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
@@ -73,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                 <div className="relative">
                   <button 
                      onClick={() => { setIsLoginOpen(!isLoginOpen); setIsRegOpen(false); }}
-                     className="bg-primary text-white hover:bg-teal-700 px-4 py-2 rounded-md text-sm font-medium flex items-center"
+                     className={buttonClass}
                   >
                      Login <i className="fas fa-chevron-down ml-2 text-xs"></i>
                   </button>
@@ -88,12 +92,13 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
             ) : (
               <>
                  <span className="text-sm text-gray-600 mr-2">Welcome</span>
-                 <button onClick={() => onNavigate('dashboard')} className="text-primary font-medium hover:underline mr-4">Dashboard</button>
-                 <button onClick={onLogout} className="text-red-500 hover:text-red-700 text-sm font-medium">Logout</button>
+                 <button onClick={() => onNavigate('dashboard')} className={buttonClass}>Dashboard</button>
+                 <button onClick={onLogout} className={buttonClass}>Logout</button>
               </>
             )}
           </div>
-          <div className="-mr-2 flex items-center md:hidden">
+          
+          <div className="-mr-2 flex items-center xl:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
@@ -106,7 +111,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden">
+        <div className="xl:hidden">
           <div className="pt-2 pb-3 space-y-1">
             <NavItem page="home" label="Home" />
             <NavItem page="about" label="About Us" />
@@ -208,6 +213,7 @@ export const AdminSidebar: React.FC<{ activeTab: string, setActiveTab: (t: strin
     { id: 'blog', label: 'Blog', icon: 'fa-pen-fancy' },
     { id: 'email-marketing', label: 'E Mail Marketing', icon: 'fa-envelope' },
     { id: 'manage-events', label: 'Manage Events', icon: 'fa-calendar-alt' },
+    { id: 'success-stories', label: 'Success Stories', icon: 'fa-quote-right' },
   ];
 
   return (

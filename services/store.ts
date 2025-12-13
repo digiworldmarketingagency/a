@@ -1,4 +1,4 @@
-import { User, UserType, Job, Event, Blog, EmailTemplate, SuccessStory, GalleryItem, CandidateListing, CorporateUser, Banner } from '../types';
+import { User, UserType, Job, Event, Blog, EmailTemplate, SuccessStory, GalleryItem, CandidateListing, CorporateUser, Banner, Stats } from '../types';
 
 // Mock Data
 const MOCK_JOBS: Job[] = [
@@ -147,6 +147,13 @@ export interface SearchCriteria {
     category: string;
 }
 
+const INITIAL_STATS: Stats = {
+    jobsPosted: '10k+',
+    companies: '500+',
+    candidates: '50k+',
+    events: '100+'
+};
+
 class MockStore {
   currentUser: User | null = null;
   jobs: Job[] = MOCK_JOBS;
@@ -159,6 +166,7 @@ class MockStore {
   successStories: SuccessStory[] = [...MOCK_STORIES];
   gallery: GalleryItem[] = [...MOCK_GALLERY];
   banners: Banner[] = [...MOCK_BANNERS];
+  stats: Stats = INITIAL_STATS;
   
   // Search State
   searchCriteria: SearchCriteria = { title: '', location: '', category: '' };
@@ -288,6 +296,13 @@ class MockStore {
     if (idx !== -1) {
       this.banners[idx] = updatedBanner;
     }
+  }
+
+  // Stats Methods
+  getStats() { return this.stats; }
+  
+  updateStats(newStats: Stats) {
+      this.stats = newStats;
   }
 
   // Search Methods

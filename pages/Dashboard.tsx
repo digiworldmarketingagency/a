@@ -83,6 +83,15 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
   const [banners, setBanners] = useState<Banner[]>(store.getBanners());
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
 
+  // Stats Management
+  const [homeStats, setHomeStats] = useState(store.getStats());
+
+  // Success Stories State
+  const [stories, setStories] = useState<SuccessStory[]>(store.getSuccessStories());
+  const [storyForm, setStoryForm] = useState<Partial<SuccessStory>>({});
+  const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
+  const [editingStoryId, setEditingStoryId] = useState<string | null>(null);
+
   const allCandidateColumns = [
       "Date of Birth", "Mobile No", "Email", "State", "City", "Pin Code", "Area", "Preferred Cities", "LinkedIn", 
       "Preferred Job Type", "Preferred Role Type", "Is Fresher", "Highest Education", "Job Fair Enrolled", "Created By", "Created On", "CV"
@@ -299,6 +308,57 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
           setEditingBanner({...editingBanner, style});
       }
   };
+  
+  const handleSaveStats = () => {
+      store.updateStats(homeStats);
+      alert("Homepage Stats Updated!");
+  };
+
+  // Success Stories Handlers
+  const handleAddStory = () => {
+      setStoryForm({});
+      setEditingStoryId(null);
+      setIsStoryModalOpen(true);
+  };
+
+  const handleEditStory = (story: SuccessStory) => {
+      setStoryForm(story);
+      setEditingStoryId(story.id);
+      setIsStoryModalOpen(true);
+  };
+
+  const handleDeleteStory = (id: string) => {
+      if (window.confirm("Are you sure you want to delete this story?")) {
+          store.deleteSuccessStory(id);
+          setStories([...store.getSuccessStories()]);
+      }
+  };
+
+  const handleSaveStory = () => {
+      if (!storyForm.name || !storyForm.role || !storyForm.comment) {
+          alert("Please fill in all required fields.");
+          return;
+      }
+
+      const newStory: SuccessStory = {
+          id: editingStoryId || Date.now().toString(),
+          name: storyForm.name,
+          role: storyForm.role,
+          comment: storyForm.comment,
+          imageUrl: storyForm.imageUrl || 'https://i.pravatar.cc/150'
+      };
+
+      if (editingStoryId) {
+          store.updateSuccessStory(newStory);
+      } else {
+          store.addSuccessStory(newStory);
+      }
+      
+      setStories([...store.getSuccessStories()]);
+      setIsStoryModalOpen(false);
+      alert(editingStoryId ? "Story updated!" : "Story added!");
+  };
+
 
   // Mock Profile for Candidate View
   const mockProfile = {
@@ -330,6 +390,20 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
       case 'master':
         return (
             <div className="space-y-6">
+                {/* Stats Editor */}
+                <Card title="Homepage Statistics">
+                    <p className="text-sm text-gray-500 mb-4">Update the counters displayed on the homepage stats bar.</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <Input label="Jobs Posted" value={homeStats.jobsPosted} onChange={e => setHomeStats({...homeStats, jobsPosted: e.target.value})} containerClassName="mb-0" />
+                        <Input label="Companies" value={homeStats.companies} onChange={e => setHomeStats({...homeStats, companies: e.target.value})} containerClassName="mb-0" />
+                        <Input label="Candidates" value={homeStats.candidates} onChange={e => setHomeStats({...homeStats, candidates: e.target.value})} containerClassName="mb-0" />
+                        <Input label="Events" value={homeStats.events} onChange={e => setHomeStats({...homeStats, events: e.target.value})} containerClassName="mb-0" />
+                    </div>
+                    <div className="mt-4 flex justify-end">
+                        <Button onClick={handleSaveStats}>Update Stats</Button>
+                    </div>
+                </Card>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {['City Master', 'State Master', 'Pin Code Master'].map((m) => (
                         <Card key={m} title={m}>
@@ -917,6 +991,55 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                    </Modal>
                )}
            </div>
+        );
+
+      // 8. Success Stories Management
+      case 'success-stories':
+        return (
+            <div className="space-y-6">
+                <Card title="Manage Success Stories">
+                    <div className="flex justify-between items-center mb-6">
+                        <p className="text-sm text-gray-600">Add, edit, or remove success stories displayed on the home page.</p>
+                        <Button onClick={handleAddStory}><i className="fas fa-plus mr-2"></i> Add New Story</Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {stories.map(story => (
+                            <div key={story.id} className="bg-white border rounded-lg shadow-sm p-4 relative group">
+                                <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onClick={() => handleEditStory(story)} className="p-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100"><i className="fas fa-edit"></i></button>
+                                    <button onClick={() => handleDeleteStory(story.id)} className="p-1 bg-red-50 text-red-600 rounded hover:bg-red-100"><i className="fas fa-trash"></i></button>
+                                </div>
+                                <div className="flex items-center space-x-3 mb-3">
+                                    <img src={story.imageUrl} alt={story.name} className="w-12 h-12 rounded-full object-cover" />
+                                    <div>
+                                        <h4 className="font-bold text-gray-800 text-sm">{story.name}</h4>
+                                        <p className="text-xs text-gray-500">{story.role}</p>
+                                    </div>
+                                </div>
+                                <p className="text-sm text-gray-600 italic">"{story.comment}"</p>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+
+                <Modal isOpen={isStoryModalOpen} onClose={() => setIsStoryModalOpen(false)} title={editingStoryId ? "Edit Story" : "Add Success Story"}>
+                    <div className="space-y-4">
+                        <Input label="Name" value={storyForm.name || ''} onChange={e => setStoryForm({...storyForm, name: e.target.value})} />
+                        <Input label="Role / Job Title" value={storyForm.role || ''} onChange={e => setStoryForm({...storyForm, role: e.target.value})} placeholder="e.g. Software Engineer @ Google" />
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Testimonial Comment</label>
+                            <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={3} value={storyForm.comment || ''} onChange={e => setStoryForm({...storyForm, comment: e.target.value})}></textarea>
+                        </div>
+                        <Input label="Image URL" value={storyForm.imageUrl || ''} onChange={e => setStoryForm({...storyForm, imageUrl: e.target.value})} placeholder="https://..." />
+                        
+                        <div className="flex justify-end space-x-2 pt-2">
+                            <Button variant="outline" onClick={() => setIsStoryModalOpen(false)}>Cancel</Button>
+                            <Button onClick={handleSaveStory}>Save Story</Button>
+                        </div>
+                    </div>
+                </Modal>
+            </div>
         );
 
       // Fallback for inaccessible tabs or removed ones

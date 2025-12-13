@@ -157,3 +157,10 @@ export interface Banner {
   link: string;
   isActive: boolean;
 }
+
+export interface Stats {
+  jobsPosted: string;
+  companies: string;
+  candidates: string;
+  events: string;
+}
