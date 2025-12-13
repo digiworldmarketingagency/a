@@ -35,20 +35,20 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
 
   return (
     <div>
-      {/* Banner Carousel Section */}
+      {/* Banner Carousel Section - Increased Size */}
       {activeBanners.length > 0 && (
-          <div className={`relative h-64 overflow-hidden transition-colors duration-500 ${activeBanners[currentBannerIndex].style}`}>
+          <div className={`relative h-[450px] overflow-hidden transition-colors duration-500 ${activeBanners[currentBannerIndex].style}`}>
              <div className="absolute inset-0 flex items-center justify-center text-center px-4">
-                 <div className={`max-w-4xl ${activeBanners[currentBannerIndex].style.includes('text-gray-900') ? 'text-gray-900' : 'text-white'}`}>
-                     <h2 className="text-4xl font-bold mb-4 drop-shadow-md transition-all duration-500 transform translate-y-0 opacity-100">
+                 <div className={`max-w-5xl ${activeBanners[currentBannerIndex].style.includes('text-gray-900') ? 'text-gray-900' : 'text-white'}`}>
+                     <h2 className="text-5xl md:text-6xl font-bold mb-6 drop-shadow-md transition-all duration-500 transform translate-y-0 opacity-100">
                          {activeBanners[currentBannerIndex].title}
                      </h2>
-                     <p className="text-xl mb-6 drop-shadow opacity-90">
+                     <p className="text-2xl md:text-3xl mb-8 drop-shadow opacity-90 font-light">
                          {activeBanners[currentBannerIndex].description}
                      </p>
                      <Button 
                         onClick={() => onNavigate(activeBanners[currentBannerIndex].link.replace('/', ''))}
-                        className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-8 py-3 rounded-full shadow-lg"
+                        className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-10 py-4 text-lg rounded-full shadow-lg transform transition hover:scale-105"
                      >
                          {activeBanners[currentBannerIndex].buttonText}
                      </Button>
@@ -56,12 +56,12 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
              </div>
              {/* Indicators */}
              {activeBanners.length > 1 && (
-                 <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+                 <div className="absolute bottom-6 left-0 right-0 flex justify-center space-x-3">
                      {activeBanners.map((_, idx) => (
                          <button 
                             key={idx} 
                             onClick={() => setCurrentBannerIndex(idx)}
-                            className={`w-3 h-3 rounded-full ${idx === currentBannerIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/80'} transition-all`}
+                            className={`w-3 h-3 rounded-full ${idx === currentBannerIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/80'} transition-all shadow-sm`}
                          ></button>
                      ))}
                  </div>
@@ -69,24 +69,15 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
           </div>
       )}
 
-      {/* Hero Section */}
-      <div 
-        className="relative h-[550px] flex items-center justify-center bg-cover"
-        style={{ 
-          backgroundImage: "url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80')",
-          backgroundPosition: 'center 20%' // Ensures faces are not cut off at the top
-        }}
-      >
-        {/* Background Overlay Tint */}
-        <div className="absolute inset-0 bg-blue-900/60 pointer-events-none"></div>
-        
+      {/* Hero Section - Replaced Image with Dark Blue Corporate Color */}
+      <div className="relative h-[500px] flex items-center justify-center bg-blue-900">
         <div className="relative max-w-7xl mx-auto px-4 w-full flex flex-col items-center z-10">
            <div className="text-white mb-10 text-center max-w-4xl drop-shadow-md">
               <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight tracking-tight">
                   15+ Years of Connecting Talent <br/>
                   <span className="text-accent">with Opportunity across India!</span>
               </h1>
-              <p className="text-lg text-gray-100 mb-2 font-light">Your gateway to a brighter professional future.</p>
+              <p className="text-lg text-gray-200 mb-2 font-light">Your gateway to a brighter professional future.</p>
            </div>
            
            <div className="w-full max-w-5xl">
