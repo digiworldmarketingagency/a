@@ -113,9 +113,10 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
                      <p className="text-2xl md:text-3xl mb-8 drop-shadow opacity-90 font-light">
                          {activeBanners[currentBannerIndex].description}
                      </p>
+                     {/* Updated Carousel Button to Green Background/White Text */}
                      <Button 
                         onClick={() => onNavigate(activeBanners[currentBannerIndex].link.replace('/', ''))}
-                        className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-10 py-4 text-lg rounded-full shadow-lg transform transition hover:scale-105"
+                        className="bg-primary text-white font-bold px-10 py-4 text-lg rounded-full shadow-lg transform transition"
                      >
                          {activeBanners[currentBannerIndex].buttonText}
                      </Button>
@@ -128,7 +129,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
                          <button 
                             key={idx} 
                             onClick={() => setCurrentBannerIndex(idx)}
-                            className={`w-3 h-3 rounded-full ${idx === currentBannerIndex ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/80'} transition-all shadow-sm`}
+                            className={`w-3 h-3 rounded-full ${idx === currentBannerIndex ? 'bg-white scale-125' : 'bg-white/50'} transition-all shadow-sm`}
                          ></button>
                      ))}
                  </div>
@@ -178,7 +179,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
                      />
                    </div>
                    <Button 
-                     className="w-full md:w-auto h-12 px-8 text-lg bg-primary hover:bg-teal-700 shadow-md whitespace-nowrap" 
+                     className="w-full md:w-auto h-12 px-8 text-lg bg-primary shadow-md whitespace-nowrap" 
                      onClick={handleFindJobs}
                    >
                      Find Jobs
@@ -189,7 +190,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
                <div className="mt-6 flex justify-start">
                    <Button 
                       onClick={() => onNavigate('register-candidate')} 
-                      className="px-8 py-3 text-lg bg-accent hover:bg-orange-600 text-white shadow-xl rounded-full transform transition hover:-translate-y-1"
+                      className="px-8 py-3 text-lg bg-accent text-white shadow-xl rounded-full transform transition"
                    >
                       Get Started <i className="fas fa-arrow-right ml-2"></i>
                    </Button>
@@ -203,41 +204,44 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
         <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Employers Card */}
-                <div className="bg-gray-500 rounded-xl h-64 relative overflow-hidden group flex items-center shadow-lg transition-transform hover:-translate-y-1">
+                <div className="bg-gray-500 rounded-xl h-64 relative overflow-hidden group flex items-center shadow-lg transition-transform">
                    <div className="absolute right-0 top-0 bottom-0 w-1/2">
-                      <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" alt="Employers" className="h-full w-full object-cover opacity-60 group-hover:opacity-75 transition-opacity" />
+                      <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" alt="Employers" className="h-full w-full object-cover opacity-60 transition-opacity" />
                       <div className="absolute inset-0 bg-gradient-to-l from-transparent to-gray-500"></div>
                    </div>
                    <div className="relative z-10 p-8 w-2/3">
                       <h3 className="text-2xl font-bold text-white mb-2">Employers</h3>
                       <p className="text-white text-sm mb-4 opacity-90 leading-snug">Find the best talent for your company with our advanced hiring tools.</p>
-                      <Button onClick={() => onNavigate('register-corporate')} className="bg-white text-gray-800 hover:bg-gray-100 text-sm px-4 py-2 border-0 font-bold shadow-sm">Register Account</Button>
+                      {/* Updated Button to Green Background/White Text */}
+                      <Button onClick={() => onNavigate('register-corporate')} className="bg-primary text-white text-sm px-4 py-2 border-0 font-bold shadow-sm">Register Account</Button>
                    </div>
                 </div>
 
                 {/* Candidate Card */}
-                <div className="bg-rose-400 rounded-xl h-64 relative overflow-hidden group flex items-center shadow-lg transition-transform hover:-translate-y-1">
+                <div className="bg-rose-400 rounded-xl h-64 relative overflow-hidden group flex items-center shadow-lg transition-transform">
                    <div className="absolute right-0 top-0 bottom-0 w-1/2">
-                       <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=400" alt="Candidates" className="h-full w-full object-cover opacity-60 group-hover:opacity-75 transition-opacity" />
+                       <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=400" alt="Candidates" className="h-full w-full object-cover opacity-60 transition-opacity" />
                        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-rose-400"></div>
                    </div>
                    <div className="relative z-10 p-8 w-2/3">
                       <h3 className="text-2xl font-bold text-white mb-2">Candidate</h3>
                       <p className="text-white text-sm mb-4 opacity-90 leading-snug">Register today to find your dream job and boost your career.</p>
-                      <Button onClick={() => onNavigate('register-candidate')} className="bg-white text-rose-500 hover:bg-gray-100 text-sm px-4 py-2 border-0 font-bold shadow-sm">Register Account</Button>
+                      {/* Updated Button to Green Background/White Text */}
+                      <Button onClick={() => onNavigate('register-candidate')} className="bg-primary text-white text-sm px-4 py-2 border-0 font-bold shadow-sm">Register Account</Button>
                    </div>
                 </div>
 
                 {/* Resume Assistant Card */}
-                 <div className="bg-teal-600 rounded-xl h-64 relative overflow-hidden group flex items-center shadow-lg transition-transform hover:-translate-y-1">
+                 <div className="bg-teal-600 rounded-xl h-64 relative overflow-hidden group flex items-center shadow-lg transition-transform">
                    <div className="absolute right-0 top-0 bottom-0 w-1/2">
-                       <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=400" alt="Resume" className="h-full w-full object-cover opacity-60 group-hover:opacity-75 transition-opacity" />
+                       <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=400" alt="Resume" className="h-full w-full object-cover opacity-60 transition-opacity" />
                        <div className="absolute inset-0 bg-gradient-to-l from-transparent to-teal-600"></div>
                    </div>
                    <div className="relative z-10 p-8 w-2/3">
                       <h3 className="text-2xl font-bold text-white mb-2">Resume Assistant</h3>
                       <p className="text-white text-sm mb-4 opacity-90 leading-snug">Build an ATS-friendly resume in minutes with our AI tool.</p>
-                      <Button onClick={() => onNavigate('resources')} className="bg-white text-teal-600 hover:bg-gray-100 text-sm px-4 py-2 border-0 font-bold shadow-sm">Build Resume</Button>
+                      {/* Updated Button to Green Background/White Text */}
+                      <Button onClick={() => onNavigate('resources')} className="bg-primary text-white text-sm px-4 py-2 border-0 font-bold shadow-sm">Build Resume</Button>
                    </div>
                 </div>
             </div>
@@ -248,32 +252,32 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
       <div className="bg-white py-10 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 flex flex-wrap justify-center md:justify-between text-center gap-8">
           <div 
-             className="flex-1 min-w-[150px] cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors group"
+             className="flex-1 min-w-[150px] cursor-pointer rounded-lg p-2 transition-colors group"
              onClick={() => onNavigate('jobboard')}
           >
-            <div className="text-4xl font-extrabold text-primary mb-1 group-hover:scale-110 transition-transform">{stats.jobsPosted}</div>
-            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide group-hover:text-primary">Jobs Posted</div>
+            <div className="text-4xl font-extrabold text-primary mb-1 transition-transform">{stats.jobsPosted}</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Jobs Posted</div>
           </div>
           <div 
-             className="flex-1 min-w-[150px] cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors group"
+             className="flex-1 min-w-[150px] cursor-pointer rounded-lg p-2 transition-colors group"
              onClick={() => setShowAllCompanies(true)}
           >
-            <div className="text-4xl font-extrabold text-primary mb-1 group-hover:scale-110 transition-transform">{stats.companies}</div>
-            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide group-hover:text-primary">Companies</div>
+            <div className="text-4xl font-extrabold text-primary mb-1 transition-transform">{stats.companies}</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Companies</div>
           </div>
           <div 
-             className="flex-1 min-w-[150px] cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors group"
+             className="flex-1 min-w-[150px] cursor-pointer rounded-lg p-2 transition-colors group"
              onClick={() => onNavigate('register-candidate')}
           >
-            <div className="text-4xl font-extrabold text-primary mb-1 group-hover:scale-110 transition-transform">{stats.candidates}</div>
-            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide group-hover:text-primary">Candidates</div>
+            <div className="text-4xl font-extrabold text-primary mb-1 transition-transform">{stats.candidates}</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Candidates</div>
           </div>
           <div 
-             className="flex-1 min-w-[150px] cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors group"
+             className="flex-1 min-w-[150px] cursor-pointer rounded-lg p-2 transition-colors group"
              onClick={() => onNavigate('events')}
           >
-            <div className="text-4xl font-extrabold text-primary mb-1 group-hover:scale-110 transition-transform">{stats.events}</div>
-            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide group-hover:text-primary">Events</div>
+            <div className="text-4xl font-extrabold text-primary mb-1 transition-transform">{stats.events}</div>
+            <div className="text-sm text-gray-500 font-medium uppercase tracking-wide">Events</div>
           </div>
         </div>
       </div>
@@ -287,7 +291,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {recentJobs.map(job => (
-              <div key={job.id} className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow border-l-4 border-transparent hover:border-primary">
+              <div key={job.id} className="bg-white p-6 rounded-lg shadow-sm transition-shadow border-l-4 border-transparent">
                 <div className="flex items-start space-x-4">
                   <div className="flex-shrink-0">
                     {job.companyLogo ? (
@@ -340,7 +344,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
                               className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
                                   popularFilter === filter
                                   ? 'bg-white text-gray-900 shadow-sm'
-                                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                                  : 'text-gray-500'
                               }`}
                           >
                               {filter}
@@ -352,9 +356,9 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
               {/* Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                   {filteredPopularJobs.map(job => (
-                      <div key={job.id} className="bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg transition-shadow relative">
+                      <div key={job.id} className="bg-white rounded-xl border border-gray-100 p-6 transition-shadow relative">
                           {/* Bookmark */}
-                          <button className="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
+                          <button className="absolute top-6 right-6 text-gray-400">
                               <i className="far fa-bookmark"></i>
                           </button>
                           
@@ -399,13 +403,14 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
                  <h2 className="text-3xl font-bold text-gray-800 mb-2">Top Companies Registered</h2>
                  <p className="text-gray-500">Some of the companies we've helped recruit excellent applicants over the years.</p>
               </div>
-              <button onClick={() => setShowAllCompanies(true)} className="text-primary font-bold hover:underline hidden md:block">Browse All Companies &gt;</button>
+              <button onClick={() => setShowAllCompanies(true)} className="text-primary font-bold hidden md:block">Browse All Companies &gt;</button>
            </div>
            
            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
               {visibleCompanies.map(company => (
-                 <div key={company.id} className="bg-white border border-gray-100 rounded-xl p-8 text-center hover:shadow-xl transition-all duration-300 group cursor-pointer">
-                     <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center text-2xl font-bold mb-6 ${company.bg} ${company.text}`}>
+                 <div key={company.id} className="bg-white border border-gray-100 rounded-xl p-8 text-center transition-all duration-300 group cursor-pointer">
+                     {/* Changed from rounded-full to rounded-xl for square with rounded corners */}
+                     <div className={`w-16 h-16 mx-auto rounded-xl flex items-center justify-center text-2xl font-bold mb-6 ${company.bg} ${company.text}`}>
                          {company.logo}
                      </div>
                      <h3 className="font-bold text-lg text-gray-900 mb-2">{company.name}</h3>
@@ -414,7 +419,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
                      </div>
                      <button 
                         onClick={() => onNavigate('jobboard')}
-                        className="w-full bg-blue-50 text-primary font-bold py-3 rounded-lg group-hover:bg-primary group-hover:text-white transition-colors text-sm"
+                        className="w-full bg-blue-50 text-primary font-bold py-3 rounded-lg transition-colors text-sm"
                      >
                          Open Jobs - {company.openJobs}
                      </button>
@@ -429,7 +434,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
                        <button 
                           key={idx} 
                           onClick={() => setCompanyPage(idx)}
-                          className={`h-2 rounded-full transition-all duration-300 ${companyPage === idx ? 'bg-gray-800 w-8' : 'bg-gray-300 w-2 hover:bg-gray-400'}`}
+                          className={`h-2 rounded-full transition-all duration-300 ${companyPage === idx ? 'bg-gray-800 w-8' : 'bg-gray-300 w-2'}`}
                        ></button>
                    ))}
                </div>
@@ -437,7 +442,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
            
            {/* Mobile View All Button */}
            <div className="mt-8 text-center md:hidden">
-              <button onClick={() => setShowAllCompanies(true)} className="text-primary font-bold hover:underline">Browse All Companies &gt;</button>
+              <button onClick={() => setShowAllCompanies(true)} className="text-primary font-bold">Browse All Companies &gt;</button>
            </div>
         </div>
       </div>
@@ -453,13 +458,13 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
                 className="relative group cursor-pointer overflow-hidden rounded-lg aspect-square bg-gray-200"
                 onClick={() => setLightboxImg(c.url)}
               >
-                <img src={c.url} alt={c.title} className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
+                <img src={c.url} alt={c.title} className="w-full h-full object-cover transition-opacity" />
                 {c.type === 'video' && (
                   <div className="absolute inset-0 flex items-center justify-center">
                      <i className="fas fa-play-circle text-white text-4xl opacity-80 drop-shadow-lg"></i>
                   </div>
                 )}
-                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent text-white text-sm font-medium opacity-0 transition-opacity">
                   {c.title}
                 </div>
               </div>
@@ -473,11 +478,11 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
          <h2 className="text-3xl font-bold text-gray-800 mb-8">Latest from Our Blog</h2>
          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {blogs.map(blog => (
-              <div key={blog.id} className="bg-white border border-gray-100 rounded-lg p-6 hover:shadow-lg transition-shadow">
+              <div key={blog.id} className="bg-white border border-gray-100 rounded-lg p-6 transition-shadow">
                  <div className="text-xs text-primary font-bold uppercase mb-2">Career Advice</div>
                  <h3 className="font-bold text-xl mb-3">{blog.title}</h3>
                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{blog.content}</p>
-                 <button className="text-accent font-medium text-sm hover:underline">Read More <i className="fas fa-arrow-right ml-1"></i></button>
+                 <button className="text-accent font-medium text-sm">Read More <i className="fas fa-arrow-right ml-1"></i></button>
               </div>
             ))}
          </div>
@@ -491,7 +496,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
             {successStories.map(story => (
               <div 
                 key={story.id} 
-                className="bg-teal-800 p-8 rounded-lg shadow-lg relative cursor-pointer transform transition-all duration-300 hover:scale-105 hover:bg-teal-700"
+                className="bg-teal-800 p-8 rounded-lg shadow-lg relative cursor-pointer transform transition-all duration-300"
                 onClick={() => setSelectedStory(story)}
               >
                 <i className="fas fa-quote-left text-teal-600 text-4xl absolute top-4 left-4 opacity-30"></i>
@@ -525,7 +530,7 @@ const Home: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) 
             <p className="text-sm text-gray-500 mb-4">Browse our comprehensive list of registered corporate partners.</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {allCompanies.map(company => (
-                    <div key={company.id} className="bg-white border border-gray-100 rounded-lg p-4 flex items-center space-x-3 hover:shadow-md transition-shadow cursor-pointer" onClick={() => { setShowAllCompanies(false); onNavigate('jobboard'); }}>
+                    <div key={company.id} className="bg-white border border-gray-100 rounded-lg p-4 flex items-center space-x-3 transition-shadow cursor-pointer" onClick={() => { setShowAllCompanies(false); onNavigate('jobboard'); }}>
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${company.bg} ${company.text}`}>
                             {company.logo}
                         </div>

@@ -17,14 +17,14 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
   const NavItem = ({ page, label }: { page: string, label: string }) => (
     <button 
       onClick={() => { onNavigate(page); setIsMenuOpen(false); }}
-      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-gray-50 w-full text-left"
+      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 w-full text-left"
     >
       {label}
     </button>
   );
 
   // Updated button class: Dynamic width based on text (removed w-40), padding px-4
-  const buttonClass = "bg-primary text-white hover:bg-teal-700 h-10 px-4 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center justify-center whitespace-nowrap";
+  const buttonClass = "bg-primary text-white h-10 px-4 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center justify-center whitespace-nowrap";
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -67,8 +67,8 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                   </button>
                   {isRegOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                      <button onClick={() => {onNavigate('register-candidate'); setIsRegOpen(false)}} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Candidate</button>
-                      <button onClick={() => {onNavigate('register-corporate'); setIsRegOpen(false)}} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Corporate</button>
+                      <button onClick={() => {onNavigate('register-candidate'); setIsRegOpen(false)}} className="block w-full text-left px-4 py-2 text-sm text-gray-700">Candidate</button>
+                      <button onClick={() => {onNavigate('register-corporate'); setIsRegOpen(false)}} className="block w-full text-left px-4 py-2 text-sm text-gray-700">Corporate</button>
                     </div>
                   )}
                 </div>
@@ -83,8 +83,8 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
                   </button>
                   {isLoginOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                      <button onClick={() => {onNavigate('login-candidate'); setIsLoginOpen(false)}} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Candidate Login</button>
-                      <button onClick={() => {onNavigate('login-corporate'); setIsLoginOpen(false)}} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Corporate Login</button>
+                      <button onClick={() => {onNavigate('login-candidate'); setIsLoginOpen(false)}} className="block w-full text-left px-4 py-2 text-sm text-gray-700">Candidate Login</button>
+                      <button onClick={() => {onNavigate('login-corporate'); setIsLoginOpen(false)}} className="block w-full text-left px-4 py-2 text-sm text-gray-700">Corporate Login</button>
                     </div>
                   )}
                 </div>
@@ -101,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onNavigate, onLogout }) =>
           <div className="-mr-2 flex items-center xl:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 focus:outline-none"
             >
               <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-xl`}></i>
             </button>
@@ -169,11 +169,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <div>
             <h4 className="text-md font-semibold mb-4 text-gray-300">Quick Links</h4>
             <ul className="space-y-2 text-sm text-gray-400">
-                <li><button onClick={handleNav('home')} className="hover:text-white hover:underline">Home</button></li>
-                <li><button onClick={handleNav('about')} className="hover:text-white hover:underline">About Us</button></li>
-                <li><button onClick={handleNav('events')} className="hover:text-white hover:underline">Events</button></li>
-                <li><button onClick={handleNav('resources')} className="hover:text-white hover:underline">Resource Center</button></li>
-                <li><button onClick={handleNav('register-candidate')} className="hover:text-white hover:underline">Registration</button></li>
+                <li><button onClick={handleNav('home')}>Home</button></li>
+                <li><button onClick={handleNav('about')}>About Us</button></li>
+                <li><button onClick={handleNav('events')}>Events</button></li>
+                <li><button onClick={handleNav('resources')}>Resource Center</button></li>
+                <li><button onClick={handleNav('register-candidate')}>Registration</button></li>
             </ul>
             </div>
             <div>
@@ -184,13 +184,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <div>
             <h4 className="text-md font-semibold mb-4 text-gray-300">Follow Us</h4>
             <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-facebook fa-lg"></i></a>
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-linkedin fa-lg"></i></a>
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-twitter fa-lg"></i></a>
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-pinterest fa-lg"></i></a>
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-telegram fa-lg"></i></a>
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-instagram fa-lg"></i></a>
-                <a href="#" className="text-gray-400 hover:text-white"><i className="fab fa-youtube fa-lg"></i></a>
+                <a href="#" className="text-gray-400"><i className="fab fa-facebook fa-lg"></i></a>
+                <a href="#" className="text-gray-400"><i className="fab fa-linkedin fa-lg"></i></a>
+                <a href="#" className="text-gray-400"><i className="fab fa-twitter fa-lg"></i></a>
+                <a href="#" className="text-gray-400"><i className="fab fa-pinterest fa-lg"></i></a>
+                <a href="#" className="text-gray-400"><i className="fab fa-telegram fa-lg"></i></a>
+                <a href="#" className="text-gray-400"><i className="fab fa-instagram fa-lg"></i></a>
+                <a href="#" className="text-gray-400"><i className="fab fa-youtube fa-lg"></i></a>
             </div>
             </div>
         </div>
@@ -226,7 +226,7 @@ export const AdminSidebar: React.FC<{ activeTab: string, setActiveTab: (t: strin
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full text-left px-6 py-4 hover:bg-gray-800 flex items-center ${activeTab === item.id ? 'bg-primary border-r-4 border-accent' : ''}`}
+            className={`w-full text-left px-6 py-4 flex items-center ${activeTab === item.id ? 'bg-primary border-r-4 border-accent' : ''}`}
           >
             <i className={`fas ${item.icon} w-6`}></i>
             <span>{item.label}</span>

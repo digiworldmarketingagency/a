@@ -4,9 +4,9 @@ export const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { 
   ({ children, variant = 'primary', className = '', ...props }) => {
   const baseStyle = "px-4 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2";
   const variants = {
-    primary: "bg-primary text-white hover:bg-teal-700 focus:ring-primary",
-    secondary: "bg-accent text-white hover:bg-orange-600 focus:ring-accent",
-    outline: "border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-primary"
+    primary: "bg-primary text-white focus:ring-primary",
+    secondary: "bg-accent text-white focus:ring-accent",
+    outline: "border border-gray-300 text-gray-700 focus:ring-primary"
   };
   
   return (
@@ -61,7 +61,7 @@ export const Modal: React.FC<{ isOpen: boolean, onClose: () => void, title: stri
             {children}
           </div>
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button type="button" onClick={onClose} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            <button type="button" onClick={onClose} className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
               Close
             </button>
           </div>

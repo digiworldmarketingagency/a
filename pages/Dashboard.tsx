@@ -408,7 +408,7 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                     {['City Master', 'State Master', 'Pin Code Master'].map((m) => (
                         <Card key={m} title={m}>
                             <div className="flex flex-col space-y-3">
-                                <Button className="text-sm bg-blue-600 hover:bg-blue-700" onClick={() => alert("Simulating AI Generation from public sources...")}>
+                                <Button className="text-sm bg-blue-600" onClick={() => alert("Simulating AI Generation from public sources...")}>
                                     <i className="fas fa-magic mr-2"></i> Generate via AI
                                 </Button>
                                 <Button variant="outline" className="text-sm">
@@ -455,8 +455,8 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                                     <p className="text-sm text-gray-500">Location: {c.location}</p>
                                 </div>
                                 <div className="flex flex-col space-y-2">
-                                    <Button className="bg-green-600 hover:bg-green-700 text-xs px-3" onClick={() => handleProcessApproval(c.id, 'CORPORATE', 'APPROVE')}>Approve</Button>
-                                    <Button className="bg-red-500 hover:bg-red-600 text-xs px-3" onClick={() => handleProcessApproval(c.id, 'CORPORATE', 'REJECT')}>Reject</Button>
+                                    <Button className="bg-green-600 text-xs px-3" onClick={() => handleProcessApproval(c.id, 'CORPORATE', 'APPROVE')}>Approve</Button>
+                                    <Button className="bg-red-500 text-xs px-3" onClick={() => handleProcessApproval(c.id, 'CORPORATE', 'REJECT')}>Reject</Button>
                                 </div>
                             </div>
                         ))}
@@ -473,8 +473,8 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                                     <button className="text-primary text-xs underline mt-1" onClick={() => { setJobForm(j as any); setIsPreviewOpen(true); }}>Preview Job</button>
                                 </div>
                                 <div className="flex flex-col space-y-2">
-                                    <Button className="bg-green-600 hover:bg-green-700 text-xs px-3" onClick={() => handleProcessApproval(j.id, 'JOB', 'APPROVE')}>Approve</Button>
-                                    <Button className="bg-red-500 hover:bg-red-600 text-xs px-3" onClick={() => handleProcessApproval(j.id, 'JOB', 'REJECT')}>Reject</Button>
+                                    <Button className="bg-green-600 text-xs px-3" onClick={() => handleProcessApproval(j.id, 'JOB', 'APPROVE')}>Approve</Button>
+                                    <Button className="bg-red-500 text-xs px-3" onClick={() => handleProcessApproval(j.id, 'JOB', 'REJECT')}>Reject</Button>
                                 </div>
                             </div>
                         ))}
@@ -537,7 +537,7 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-gray-500">{c.statusReason || '-'}</td>
-                                            <td className="px-6 py-4"><button className="text-blue-600 hover:text-blue-900">View</button></td>
+                                            <td className="px-6 py-4"><button className="text-blue-600">View</button></td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -563,7 +563,7 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                                                     {j.approvalStatus}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4"><button onClick={() => { setJobForm(j as any); setIsPreviewOpen(true); }} className="text-blue-600 hover:text-blue-900">View</button></td>
+                                            <td className="px-6 py-4"><button onClick={() => { setJobForm(j as any); setIsPreviewOpen(true); }} className="text-blue-600">View</button></td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -571,17 +571,6 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                         )}
                         {reportType === 'CANDIDATE' && (
                             <>
-                                <div className="p-4 bg-gray-50 border-b">
-                                    <h4 className="text-sm font-bold mb-2">Select Columns:</h4>
-                                    <div className="flex flex-wrap gap-2">
-                                        {allCandidateColumns.map(col => (
-                                            <label key={col} className="inline-flex items-center bg-white border border-gray-300 rounded px-2 py-1 text-xs cursor-pointer hover:bg-gray-50">
-                                                <input type="checkbox" className="mr-2" checked={candidateColumns.includes(col)} onChange={() => toggleCandidateColumn(col)} />
-                                                {col}
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
                                 <thead className="bg-gray-50">
                                     <tr>
                                         <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Name</th>
@@ -593,14 +582,28 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                                         <tr key={c.id}>
                                             <td className="px-6 py-4 font-bold">{c.name}</td>
                                             {candidateColumns.map(col => {
-                                                // Map readable column names to data keys
-                                                const keyMap: any = {
-                                                    "Mobile No": 'mobile', "Date of Birth": 'dob', "Pin Code": 'pincode', "Preferred Cities": 'preferredCities', 
-                                                    "LinkedIn": 'linkedin', "Preferred Job Type": 'preferredJobType', "Preferred Role Type": 'preferredRole', "Is Fresher": 'isFresher',
-                                                    "Highest Education": 'highestEducation', "Job Fair Enrolled": 'jobFairEnrolled', "Created By": 'createdBy', "Created On": 'createdOn', "CV": 'cvLink'
-                                                };
-                                                const key = keyMap[col] || col.toLowerCase();
-                                                return <td key={col} className="px-6 py-4">{(c as any)[key] || '-'}</td>
+                                                let val = '';
+                                                switch(col) {
+                                                    case 'Date of Birth': val = c.dob || '-'; break;
+                                                    case 'Mobile No': val = c.mobile || '-'; break;
+                                                    case 'Email': val = c.email || '-'; break;
+                                                    case 'State': val = c.state || '-'; break;
+                                                    case 'City': val = c.city || '-'; break;
+                                                    case 'Pin Code': val = c.pincode || '-'; break;
+                                                    case 'Area': val = c.area || '-'; break;
+                                                    case 'Preferred Cities': val = c.preferredCities || '-'; break;
+                                                    case 'LinkedIn': val = c.linkedin || '-'; break;
+                                                    case 'Preferred Job Type': val = c.preferredJobType || '-'; break;
+                                                    case 'Preferred Role Type': val = c.preferredRole || '-'; break;
+                                                    case 'Is Fresher': val = c.isFresher || '-'; break;
+                                                    case 'Highest Education': val = c.highestEducation || '-'; break;
+                                                    case 'Job Fair Enrolled': val = c.jobFairEnrolled || '-'; break;
+                                                    case 'Created By': val = c.createdBy || '-'; break;
+                                                    case 'Created On': val = c.createdOn || '-'; break;
+                                                    case 'CV': val = c.cvLink || '-'; break;
+                                                    default: val = '-';
+                                                }
+                                                return <td key={col} className="px-6 py-4 text-sm whitespace-nowrap">{val}</td>;
                                             })}
                                         </tr>
                                     ))}
@@ -611,18 +614,17 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
                             <>
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        {['Job Fair Name', 'Location', 'Date', 'Active', 'Candidate Count', 'Action'].map(h => <th key={h} className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">{h}</th>)}
+                                        <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Event Name</th>
+                                        <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th className="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Location</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {store.getEvents().map(e => (
                                         <tr key={e.id}>
                                             <td className="px-6 py-4 font-medium">{e.title}</td>
-                                            <td className="px-6 py-4">{e.location}</td>
                                             <td className="px-6 py-4">{e.date}</td>
-                                            <td className="px-6 py-4">{new Date(e.date) >= new Date() ? 'Yes' : 'No'}</td>
-                                            <td className="px-6 py-4">120</td>
-                                            <td className="px-6 py-4"><button className="text-blue-600 hover:text-blue-900">Manage</button></td>
+                                            <td className="px-6 py-4">{e.location}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -633,575 +635,300 @@ const Dashboard: React.FC<{ userType: UserType }> = ({ userType }) => {
             </div>
         );
 
-      // 4. Job Posting
       case 'job-posting':
-        return (
-          <>
-          <div className="space-y-6">
-            <Card title="Post a New Job">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 {/* Row 1 */}
-                 <Input label="Job Title" value={jobForm.title} onChange={e => handleJobChange('title', e.target.value)} />
-                 <Select label="Job Type" options={['Full Time', 'Part Time', 'Internship']} value={jobForm.jobType} onChange={e => handleJobChange('jobType', e.target.value)} />
-                 <Select label="Category" options={['IT', 'Finance', 'Marketing', 'HR', 'Sales']} value={jobForm.category} onChange={e => handleJobChange('category', e.target.value)} />
-
-                 {/* Row 2 */}
-                 <Input label="Location" value={jobForm.location} onChange={e => handleJobChange('location', e.target.value)} />
-                 <Input label="Qualification" value={jobForm.qualification} onChange={e => handleJobChange('qualification', e.target.value)} />
-                 <Input label="Experience (Years)" value={jobForm.experience} onChange={e => handleJobChange('experience', e.target.value)} />
-
-                 {/* Row 3 */}
-                 <Input label="No of Vacancies" type="number" value={jobForm.vacancies} onChange={e => handleJobChange('vacancies', e.target.value)} />
-                 <Input label="Skill Required" placeholder="Comma separated" value={jobForm.skills} onChange={e => handleJobChange('skills', e.target.value)} />
-                 <Select label="English Proficiency" options={['Native', 'Proficient', 'Advanced', 'Beginner']} value={jobForm.englishProficiency} onChange={e => handleJobChange('englishProficiency', e.target.value)} />
-
-                 {/* Row 4 - Checkboxes */}
-                 <div className="flex items-center h-full pt-6">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" checked={jobForm.relocate} onChange={e => handleJobChange('relocate', e.target.checked)} className="h-4 w-4 text-primary rounded" />
-                        <span className="text-sm text-gray-700">Ready to Relocate?</span>
-                    </label>
-                 </div>
-                 <div className="flex items-center h-full pt-6">
-                    <label className="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" checked={jobForm.bikeLicense} onChange={e => handleJobChange('bikeLicense', e.target.checked)} className="h-4 w-4 text-primary rounded" />
-                        <span className="text-sm text-gray-700">Bike Driving License?</span>
-                    </label>
-                 </div>
-                 <Select label="Event Listing (Optional)" options={['Mega Job Fair 2024', 'Tech Summit']} value={jobForm.linkedEvent} onChange={e => handleJobChange('linkedEvent', e.target.value)} />
-
-                 {/* Row 5 */}
-                 <div className="md:col-span-2">
-                    <Input label="LinkedIn URL" value={jobForm.linkedinUrl} onChange={e => handleJobChange('linkedinUrl', e.target.value)} />
-                 </div>
-                 <div className="md:col-span-3">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Computer Literacy</label>
-                    <div className="flex flex-wrap gap-4">
-                        {['Word', 'Excel', 'PowerPoint', 'Google Sheet', 'Google Form'].map(skill => (
-                            <label key={skill} className="flex items-center space-x-2 cursor-pointer bg-gray-50 px-3 py-1 rounded border border-gray-200">
-                                <input type="checkbox" checked={jobForm.computerLiteracy.includes(skill)} onChange={() => toggleComputerSkill(skill)} className="h-4 w-4 text-primary rounded" />
-                                <span className="text-sm text-gray-700">{skill}</span>
-                            </label>
-                        ))}
-                    </div>
-                 </div>
-
-                 {/* Row 6 - Salary */}
-                 <Input label="Salary Min" value={jobForm.salaryMin} onChange={e => handleJobChange('salaryMin', e.target.value)} />
-                 <Input label="Salary Max" value={jobForm.salaryMax} onChange={e => handleJobChange('salaryMax', e.target.value)} />
-                 <Select label="Salary Type" options={['Fixed', 'Incentives', 'Fixed+Incentives']} value={jobForm.salaryType} onChange={e => handleJobChange('salaryType', e.target.value)} />
-
-                 {/* Row 7 */}
-                 <div className="md:col-span-2">
-                     <Input label="Additional Perks" value={jobForm.perks} onChange={e => handleJobChange('perks', e.target.value)} />
-                 </div>
-                 <Select label="Receive Apps From" options={['Pan India', 'Overseas', 'Selected Region']} value={jobForm.receiveAppsFrom} onChange={e => handleJobChange('receiveAppsFrom', e.target.value)} />
-
-                 {/* Row 8 */}
-                 <Input label="Job Expiry Date (Max 90 days)" type="date" value={jobForm.expiryDate} onChange={e => handleJobChange('expiryDate', e.target.value)} />
-                 <Select label="Status" options={['Approved', 'Rejected', 'Waiting for Approval']} value={jobForm.status} onChange={e => handleJobChange('status', e.target.value)} disabled={userType === UserType.CORPORATE} />
-                 <div className="md:col-span-3">
-                     <label className="block text-sm font-medium text-gray-700 mb-1">Status Reason (Internal Note)</label>
-                     <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} value={jobForm.statusReason} onChange={e => handleJobChange('statusReason', e.target.value)}></textarea>
-                 </div>
-
-                 {/* Row 9 - Descriptions */}
-                 <div className="md:col-span-3">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Job Description</label>
-                    <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={4} value={jobForm.description} onChange={e => handleJobChange('description', e.target.value)}></textarea>
-                 </div>
-                 <div className="md:col-span-3">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Additional Instructions</label>
-                    <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} value={jobForm.instructions} onChange={e => handleJobChange('instructions', e.target.value)}></textarea>
-                 </div>
-              </div>
-
-              <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-md p-4 flex items-start">
-                  <i className="fas fa-exclamation-circle text-yellow-600 mt-1 mr-3"></i>
-                  <div>
-                      <h4 className="text-sm font-bold text-yellow-800">Important Note</h4>
-                      <p className="text-sm text-yellow-700 mt-1">
-                          All job postings are subject to verification and approval by the Admin before going live on the job board.
-                      </p>
-                  </div>
-              </div>
-
-              <div className="flex space-x-4 mt-8">
-                  <Button variant="outline" onClick={handlePreview} className="flex-1">Preview</Button>
-                  <Button onClick={handlePublishJob} className="flex-1">Publish</Button>
-              </div>
-            </Card>
-          </div>
-
-          <Modal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} title="Job Post Preview">
-              <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-                  <div className="border-b pb-4">
-                      <h3 className="text-xl font-bold text-primary">{jobForm.title || "Job Title"}</h3>
-                      <p className="text-sm text-gray-600">{jobForm.location} • {jobForm.jobType} • {jobForm.category}</p>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                          <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded font-medium">Status: {jobForm.status}</span>
-                          {jobForm.expiryDate && <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">Exp: {jobForm.expiryDate}</span>}
-                      </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div><span className="font-bold text-gray-700">Salary:</span> {jobForm.salaryMin} - {jobForm.salaryMax} ({jobForm.salaryType})</div>
-                      <div><span className="font-bold text-gray-700">Vacancies:</span> {jobForm.vacancies}</div>
-                      <div><span className="font-bold text-gray-700">Experience:</span> {jobForm.experience}</div>
-                      <div><span className="font-bold text-gray-700">Qualification:</span> {jobForm.qualification}</div>
-                      <div><span className="font-bold text-gray-700">Relocate:</span> {jobForm.relocate ? 'Yes' : 'No'}</div>
-                      <div><span className="font-bold text-gray-700">Bike License:</span> {jobForm.bikeLicense ? 'Yes' : 'No'}</div>
-                      <div className="col-span-2"><span className="font-bold text-gray-700">Computer Literacy:</span> {jobForm.computerLiteracy.join(', ') || 'None'}</div>
-                  </div>
-
-                  <div>
-                      <h4 className="font-bold text-gray-800 mb-1">Description</h4>
-                      <p className="text-sm text-gray-600 whitespace-pre-line">{jobForm.description || "No description provided."}</p>
-                  </div>
-
-                  <div>
-                      <h4 className="font-bold text-gray-800 mb-1">Skills</h4>
-                      <div className="flex flex-wrap gap-2">
-                          {jobForm.skills.split(',').map((s, i) => (
-                              <span key={i} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">{s.trim()}</span>
-                          ))}
-                      </div>
-                  </div>
-
-                  {jobForm.instructions && (
-                      <div className="bg-blue-50 p-3 rounded text-sm text-blue-800">
-                          <strong>Note:</strong> {jobForm.instructions}
-                      </div>
-                  )}
-
-                  <div className="pt-4 border-t flex justify-end space-x-2">
-                      <Button variant="outline" onClick={() => setIsPreviewOpen(false)}>Edit</Button>
-                      <Button onClick={handlePublishJob}>Confirm & Publish</Button>
-                  </div>
-              </div>
-          </Modal>
-          </>
-        );
-
-      // 5. Blog
-      case 'blog':
-        return (
-           <Card title="AI Blog Writer">
-             <div className="space-y-4">
-               <Input label="Topic / Title" value={blogTopic} onChange={(e) => setBlogTopic(e.target.value)} placeholder="e.g. Future of Remote Work" />
-               <Button onClick={handleBlogGen} disabled={loading} className="w-full md:w-auto">
-                 {loading ? 'Writing...' : 'Draft with AI'}
-               </Button>
-               
-               <div className="mt-6 p-4 bg-gray-50 border rounded-md">
-                 <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-bold text-gray-700">Content Editor</h4>
-                    <span className="text-xs text-gray-500">Edit or write your blog post below</span>
-                 </div>
-                 <textarea 
-                    className="w-full p-3 border border-gray-300 rounded-md text-sm text-gray-700 h-64 focus:outline-none focus:ring-2 focus:ring-primary bg-white"
-                    placeholder="AI generated content will appear here, or start writing manually..."
-                    value={generatedBlog}
-                    onChange={(e) => setGeneratedBlog(e.target.value)}
-                 />
-                 <div className="mt-4 flex justify-end">
-                    <Button 
-                        onClick={handlePostBlog} 
-                        disabled={!generatedBlog.trim() || !blogTopic.trim()} 
-                        variant={(!generatedBlog.trim() || !blogTopic.trim()) ? 'outline' : 'primary'}
-                    >
-                      Post to Home Page
-                    </Button>
-                 </div>
-               </div>
-             </div>
-           </Card>
-        );
-
-      // 6. Email Marketing
-      case 'email-marketing':
           return (
-            <div className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left Column: Templates and AI */}
-                    <div className="lg:col-span-1 space-y-6">
-                        <Card title="Saved Templates">
-                            <p className="text-xs text-gray-500 mb-2">{templates.length} / 10 used</p>
-                            <div className="space-y-2 max-h-60 overflow-y-auto">
-                                {templates.map(t => (
-                                    <div key={t.id} className="p-2 border rounded hover:bg-gray-50 cursor-pointer flex justify-between items-center group" onClick={() => handleLoadTemplate(t)}>
-                                        <div className="truncate flex-1">
-                                            <div className="text-sm font-medium text-gray-800 truncate">{t.name}</div>
-                                            <div className="text-xs text-gray-500 truncate">{t.subject}</div>
-                                        </div>
-                                        <button 
-                                            onClick={(e) => {e.stopPropagation(); handleDeleteTemplate(t.id)}} 
-                                            className="text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity ml-2"
-                                            title="Delete Template"
-                                        >
-                                            <i className="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                ))}
-                                {templates.length === 0 && <p className="text-sm text-gray-400 text-center py-4">No templates saved.</p>}
-                            </div>
-                        </Card>
+              <div className="space-y-6">
+                  <h3 className="text-xl font-bold text-gray-800 border-b pb-2">Post a New Job</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <Input label="Job Title" value={jobForm.title} onChange={e => handleJobChange('title', e.target.value)} />
+                      <Input label="Location" value={jobForm.location} onChange={e => handleJobChange('location', e.target.value)} />
+                      
+                      <Select label="Category" options={['IT', 'Marketing', 'Finance', 'HR', 'Sales']} value={jobForm.category} onChange={e => handleJobChange('category', e.target.value)} />
+                      <Select label="Job Type" options={['Full Time', 'Part Time', 'Internship']} value={jobForm.jobType} onChange={e => handleJobChange('jobType', e.target.value)} />
 
-                        <Card title="AI Email Assistant">
-                            <p className="text-xs text-gray-500 mb-4">Generate content to populate the composer.</p>
-                            <Input label="Job Title" value={emailJobTitle} onChange={e => setEmailJobTitle(e.target.value)} containerClassName="mb-3" />
-                            <Input label="Candidate Name" value={emailCandidate} onChange={e => setEmailCandidate(e.target.value)} containerClassName="mb-3" />
-                            <Button onClick={handleEmailGen} disabled={loading} className="w-full text-sm">
-                                {loading ? 'Generating...' : 'Generate & Fill Composer'}
-                            </Button>
-                        </Card>
-                    </div>
+                      <Input label="Min Salary" value={jobForm.salaryMin} onChange={e => handleJobChange('salaryMin', e.target.value)} />
+                      <Input label="Max Salary" value={jobForm.salaryMax} onChange={e => handleJobChange('salaryMax', e.target.value)} />
 
-                    {/* Right Column: Composer */}
-                    <div className="lg:col-span-2">
-                        <Card title="Compose Email">
-                            <div className="space-y-4">
-                                {/* From Address - Read Only */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
-                                    <div className="flex items-center px-3 py-2 border border-gray-300 bg-gray-100 rounded-md text-gray-600 text-sm">
-                                        <i className="fas fa-envelope mr-2 text-gray-400"></i> connect@ampowerjobs.com
-                                    </div>
-                                </div>
+                      <div className="md:col-span-2">
+                         <label className="block text-sm font-medium text-gray-700 mb-1">Job Description</label>
+                         <textarea className="w-full border rounded p-2" rows={5} value={jobForm.description} onChange={e => handleJobChange('description', e.target.value)}></textarea>
+                      </div>
 
-                                <Input 
-                                    label="To" 
-                                    placeholder="candidate@example.com" 
-                                    value={emailTo} 
-                                    onChange={e => setEmailTo(e.target.value)} 
-                                />
-                                <Input 
-                                    label="Subject" 
-                                    placeholder="Email Subject" 
-                                    value={emailSubject} 
-                                    onChange={e => setEmailSubject(e.target.value)} 
-                                />
-                                
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Message Body</label>
-                                    <textarea 
-                                        className="w-full h-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm font-mono"
-                                        value={emailBody}
-                                        onChange={e => setEmailBody(e.target.value)}
-                                        placeholder="Write your email here..."
-                                    ></textarea>
-                                </div>
-
-                                <div className="flex flex-col sm:flex-row justify-between items-center pt-4 border-t border-gray-100 gap-4">
-                                    <div className="flex items-center space-x-2 w-full sm:w-auto">
-                                        <Input 
-                                            placeholder="New Template Name" 
-                                            value={newTemplateName} 
-                                            onChange={e => setNewTemplateName(e.target.value)}
-                                            containerClassName="mb-0 w-48"
-                                            className="text-sm"
-                                        />
-                                        <Button variant="outline" onClick={handleSaveTemplate} disabled={templates.length >= 10} className="text-sm whitespace-nowrap">
-                                            Save Template
-                                        </Button>
-                                    </div>
-                                    <Button onClick={handleSendEmail} className="w-full sm:w-auto">
-                                        <i className="fas fa-paper-plane mr-2"></i> Send Email
-                                    </Button>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                </div>
-            </div>
+                      <Input label="Expiry Date" type="date" value={jobForm.expiryDate} onChange={e => handleJobChange('expiryDate', e.target.value)} />
+                  </div>
+                  <div className="flex space-x-4 justify-end">
+                      <Button variant="outline" onClick={handlePreview}>Preview</Button>
+                      <Button onClick={handlePublishJob}>Publish Job</Button>
+                  </div>
+              </div>
+          );
+      
+      case 'blog':
+          return (
+              <div className="space-y-6">
+                  <h3 className="text-xl font-bold text-gray-800 border-b pb-2">Blog Management</h3>
+                  <div className="flex space-x-4 items-end">
+                      <Input containerClassName="flex-1 mb-0" label="Blog Topic" placeholder="e.g. Resume Tips for 2024" value={blogTopic} onChange={e => setBlogTopic(e.target.value)} />
+                      <Button onClick={handleBlogGen} disabled={loading} className="mb-0.5">
+                          {loading ? <i className="fas fa-spinner fa-spin"></i> : <><i className="fas fa-magic mr-2"></i> Draft with AI</>}
+                      </Button>
+                  </div>
+                  <div className="border rounded p-2 bg-gray-50 min-h-[300px]">
+                      <textarea className="w-full h-full bg-transparent border-none focus:ring-0" placeholder="Content will appear here..." value={generatedBlog} onChange={e => setGeneratedBlog(e.target.value)} rows={15}></textarea>
+                  </div>
+                  <div className="flex justify-end">
+                      <Button onClick={handlePostBlog}>Publish to Blog</Button>
+                  </div>
+              </div>
           );
 
-      // 7. Manage Events (Banner Management)
+      case 'email-marketing':
+          return (
+              <div className="space-y-6">
+                  <h3 className="text-xl font-bold text-gray-800 border-b pb-2">Email Marketing & Templates</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-4">
+                          <Card title="AI Template Generator">
+                              <Input label="Job Title" value={emailJobTitle} onChange={e => setEmailJobTitle(e.target.value)} />
+                              <Input label="Candidate Name" value={emailCandidate} onChange={e => setEmailCandidate(e.target.value)} />
+                              <Button onClick={handleEmailGen} disabled={loading} className="w-full">
+                                  {loading ? 'Generating...' : 'Generate Email Draft'}
+                              </Button>
+                          </Card>
+                          
+                          <Card title="Saved Templates">
+                              <div className="max-h-60 overflow-y-auto space-y-2">
+                                  {templates.map(t => (
+                                      <div key={t.id} className="flex justify-between items-center p-2 bg-gray-50 rounded border hover:bg-gray-100 cursor-pointer" onClick={() => handleLoadTemplate(t)}>
+                                          <span className="text-sm font-medium">{t.name}</span>
+                                          <button onClick={(e) => { e.stopPropagation(); handleDeleteTemplate(t.id); }} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
+                                      </div>
+                                  ))}
+                              </div>
+                          </Card>
+                      </div>
+
+                      <div className="space-y-4">
+                          <Input label="Email Subject" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} />
+                          <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Email Body</label>
+                              <textarea className="w-full border rounded p-2" rows={10} value={emailBody} onChange={e => setEmailBody(e.target.value)}></textarea>
+                          </div>
+                          
+                          <div className="flex items-center space-x-2">
+                              <Input containerClassName="mb-0 flex-1" placeholder="New Template Name" value={newTemplateName} onChange={e => setNewTemplateName(e.target.value)} />
+                              <Button variant="outline" onClick={handleSaveTemplate}>Save Template</Button>
+                          </div>
+
+                          <div className="border-t pt-4 mt-4">
+                              <h4 className="font-bold text-sm mb-2">Test Send</h4>
+                              <div className="flex space-x-2">
+                                  <Input containerClassName="mb-0 flex-1" placeholder="Recipient Email" value={emailTo} onChange={e => setEmailTo(e.target.value)} />
+                                  <Button onClick={handleSendEmail}><i className="fas fa-paper-plane mr-2"></i> Send</Button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          );
+
       case 'manage-events':
-        return (
-           <div className="space-y-6">
-               <Card title="Manage Event Banners">
-                   <p className="text-sm text-gray-600 mb-6">Select which banners appear on the Home Page carousel. Click 'Edit' to modify content or choose a different template style.</p>
-                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                       {banners.map(b => (
-                           <div key={b.id} className={`border rounded-lg overflow-hidden shadow-sm relative ${b.isActive ? 'ring-2 ring-primary' : 'opacity-70'}`}>
-                               {/* Preview */}
-                               <div className={`h-24 p-4 flex flex-col justify-center ${b.style}`}>
-                                   <h4 className={`font-bold text-sm truncate ${b.style.includes('text-gray-900') ? 'text-gray-900' : 'text-white'}`}>{b.title}</h4>
-                                   <p className={`text-xs truncate ${b.style.includes('text-gray-900') ? 'text-gray-800' : 'text-white/80'}`}>{b.description}</p>
-                               </div>
-                               
-                               <div className="p-3 bg-white">
-                                   <div className="flex justify-between items-center mb-2">
-                                       <span className="font-bold text-xs text-gray-700">{b.name}</span>
-                                       <span className={`text-[10px] px-2 py-0.5 rounded-full ${b.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                                           {b.isActive ? 'Active' : 'Inactive'}
-                                       </span>
-                                   </div>
-                                   <div className="flex space-x-2 mt-3">
-                                       <button onClick={() => handleToggleBanner(b.id)} className={`flex-1 text-xs py-1 rounded border ${b.isActive ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-green-200 text-green-600 hover:bg-green-50'}`}>
-                                           {b.isActive ? 'Deactivate' : 'Activate'}
-                                       </button>
-                                       <button onClick={() => handleEditBanner(b)} className="flex-1 text-xs py-1 rounded border border-gray-300 text-gray-700 hover:bg-gray-50">
-                                           Edit
-                                       </button>
-                                   </div>
-                               </div>
-                           </div>
-                       ))}
-                   </div>
-               </Card>
-               
-               {/* Edit Modal */}
-               {editingBanner && (
-                   <Modal isOpen={!!editingBanner} onClose={() => setEditingBanner(null)} title="Edit Banner Template">
-                       <div className="space-y-4">
-                           {/* Template Style Selection */}
-                           <div>
-                               <label className="block text-sm font-medium text-gray-700 mb-2">Choose Template Style</label>
-                               <div className="grid grid-cols-5 gap-2 mb-2">
-                                   {BANNER_TEMPLATES.map(t => (
-                                       <button 
-                                           key={t.id} 
-                                           onClick={() => handleApplyTemplateStyle(t.style)}
-                                           className={`h-8 rounded w-full border-2 ${t.style} ${editingBanner.style === t.style ? 'border-gray-800 scale-110' : 'border-transparent hover:scale-105'} transition-transform shadow-sm`}
-                                           title={t.name}
-                                       ></button>
+          return (
+              <div className="space-y-6">
+                  <h3 className="text-xl font-bold text-gray-800 border-b pb-2">Manage Events</h3>
+                  <div className="flex justify-end">
+                      <Button onClick={() => alert("Add Event functionality would open here.")}><i className="fas fa-plus mr-2"></i> Add Event</Button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                      {store.getEvents().map(e => (
+                          <Card key={e.id} className="flex flex-row items-center p-4">
+                              <img src={e.imageUrl} alt="" className="w-24 h-24 object-cover rounded mr-4" />
+                              <div className="flex-1">
+                                  <h4 className="font-bold text-lg">{e.title}</h4>
+                                  <p className="text-sm text-gray-500">{e.date} | {e.location}</p>
+                                  <p className="text-sm mt-1">{e.description}</p>
+                              </div>
+                              <div className="flex flex-col space-y-2">
+                                  <Button variant="outline" className="text-xs">Edit</Button>
+                                  <Button variant="outline" className="text-xs text-red-600">Delete</Button>
+                              </div>
+                          </Card>
+                      ))}
+                  </div>
+              </div>
+          );
+
+      case 'success-stories':
+          return (
+              <div className="space-y-6">
+                  <div className="flex justify-between items-center border-b pb-2">
+                      <h3 className="text-xl font-bold text-gray-800">Success Stories</h3>
+                      <Button onClick={handleAddStory}><i className="fas fa-plus mr-2"></i> Add Story</Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {stories.map(s => (
+                          <Card key={s.id} className="relative p-4">
+                              <div className="absolute top-2 right-2 space-x-2">
+                                  <button onClick={() => handleEditStory(s)} className="text-blue-500"><i className="fas fa-edit"></i></button>
+                                  <button onClick={() => handleDeleteStory(s.id)} className="text-red-500"><i className="fas fa-trash"></i></button>
+                              </div>
+                              <div className="flex items-center mb-3">
+                                  <img src={s.imageUrl} alt={s.name} className="w-12 h-12 rounded-full mr-3" />
+                                  <div>
+                                      <div className="font-bold">{s.name}</div>
+                                      <div className="text-xs text-gray-500">{s.role}</div>
+                                  </div>
+                              </div>
+                              <p className="text-sm italic text-gray-600">"{s.comment}"</p>
+                          </Card>
+                      ))}
+                  </div>
+              </div>
+          );
+      
+      case 'overview':
+           if (userType === UserType.CANDIDATE) {
+               if (candidateTab === 'saved') {
+                   return (
+                       <div className="space-y-6">
+                           <h3 className="text-xl font-bold text-gray-800 border-b pb-2">Saved Jobs</h3>
+                           {savedJobsList.length === 0 ? <p className="text-gray-500">No saved jobs.</p> : (
+                               <div className="grid gap-4">
+                                   {savedJobsList.map(job => (
+                                       <Card key={job.id} className="flex justify-between items-center p-4">
+                                           <div>
+                                               <h4 className="font-bold text-lg text-primary">{job.title}</h4>
+                                               <p className="text-sm text-gray-600">{job.company} - {job.location}</p>
+                                           </div>
+                                           <div className="flex space-x-2">
+                                               <Button className="text-xs">Apply</Button>
+                                               <button onClick={() => handleUnsaveJob(job.id)} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
+                                           </div>
+                                       </Card>
                                    ))}
                                </div>
-                               <p className="text-xs text-gray-500">Selected Style Preview:</p>
-                               <div className={`h-16 w-full rounded mt-1 mb-4 flex items-center justify-center ${editingBanner.style}`}>
-                                   <span className={`text-sm font-bold ${editingBanner.style.includes('text-gray-900') ? 'text-gray-900' : 'text-white'}`}>Preview Text</span>
+                           )}
+                       </div>
+                   );
+               } else {
+                   return (
+                       <div className="space-y-6">
+                           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                               <div className="flex items-center mb-6">
+                                   <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center text-2xl font-bold text-gray-500 mr-4">
+                                       {mockProfile.name.charAt(0)}
+                                   </div>
+                                   <div>
+                                       <h2 className="text-2xl font-bold">{mockProfile.name}</h2>
+                                       <p className="text-gray-500"><i className="fas fa-map-marker-alt mr-2"></i>{mockProfile.location}</p>
+                                       <p className="text-gray-500 text-sm mt-1">Profile Completion: <span className="text-green-600 font-bold">85%</span></p>
+                                   </div>
+                                   <div className="ml-auto">
+                                       <Button variant="outline" className="text-sm"><i className="fas fa-edit mr-2"></i> Edit Profile</Button>
+                                   </div>
+                               </div>
+                               
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                   <div>
+                                       <h4 className="font-bold text-gray-700 mb-2">Contact Info</h4>
+                                       <ul className="text-sm space-y-1 text-gray-600">
+                                           <li><i className="fas fa-envelope w-6 text-center"></i> {mockProfile.email}</li>
+                                           <li><i className="fas fa-phone w-6 text-center"></i> {mockProfile.mobile}</li>
+                                           <li><i className="fab fa-linkedin w-6 text-center"></i> <a href={mockProfile.linkedin} className="text-blue-500 hover:underline">LinkedIn Profile</a></li>
+                                       </ul>
+                                   </div>
+                                   <div>
+                                        <h4 className="font-bold text-gray-700 mb-2">Skills</h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {mockProfile.skills.split(',').map(s => <span key={s} className="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded">{s.trim()}</span>)}
+                                        </div>
+                                   </div>
                                </div>
                            </div>
 
-                           <Input label="Title" value={editingBanner.title} onChange={e => setEditingBanner({...editingBanner, title: e.target.value})} />
-                           <div>
-                               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                               <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={2} value={editingBanner.description} onChange={e => setEditingBanner({...editingBanner, description: e.target.value})}></textarea>
-                           </div>
-                           <Input label="Button Text" value={editingBanner.buttonText} onChange={e => setEditingBanner({...editingBanner, buttonText: e.target.value})} />
-                           <Input label="Link URL" value={editingBanner.link} onChange={e => setEditingBanner({...editingBanner, link: e.target.value})} />
-                           
-                           <div className="flex justify-end space-x-2 pt-4">
-                               <Button variant="outline" onClick={() => setEditingBanner(null)}>Cancel</Button>
-                               <Button onClick={handleSaveBanner}>Save Changes</Button>
+                           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                               <Card className="text-center p-4">
+                                   <div className="text-3xl font-bold text-blue-600">12</div>
+                                   <div className="text-sm text-gray-500">Jobs Applied</div>
+                               </Card>
+                               <Card className="text-center p-4">
+                                   <div className="text-3xl font-bold text-orange-500">4</div>
+                                   <div className="text-sm text-gray-500">Interviews</div>
+                               </Card>
+                               <Card className="text-center p-4">
+                                   <div className="text-3xl font-bold text-green-600">1</div>
+                                   <div className="text-sm text-gray-500">Offers</div>
+                               </Card>
                            </div>
                        </div>
-                   </Modal>
-               )}
-           </div>
-        );
+                   );
+               }
+           }
+           return null;
 
-      // 8. Success Stories Management
-      case 'success-stories':
-        return (
-            <div className="space-y-6">
-                <Card title="Manage Success Stories">
-                    <div className="flex justify-between items-center mb-6">
-                        <p className="text-sm text-gray-600">Add, edit, or remove success stories displayed on the home page.</p>
-                        <Button onClick={handleAddStory}><i className="fas fa-plus mr-2"></i> Add New Story</Button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {stories.map(story => (
-                            <div key={story.id} className="bg-white border rounded-lg shadow-sm p-4 relative group">
-                                <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onClick={() => handleEditStory(story)} className="p-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100"><i className="fas fa-edit"></i></button>
-                                    <button onClick={() => handleDeleteStory(story.id)} className="p-1 bg-red-50 text-red-600 rounded hover:bg-red-100"><i className="fas fa-trash"></i></button>
-                                </div>
-                                <div className="flex items-center space-x-3 mb-3">
-                                    <img src={story.imageUrl} alt={story.name} className="w-12 h-12 rounded-full object-cover" />
-                                    <div>
-                                        <h4 className="font-bold text-gray-800 text-sm">{story.name}</h4>
-                                        <p className="text-xs text-gray-500">{story.role}</p>
-                                    </div>
-                                </div>
-                                <p className="text-sm text-gray-600 italic">"{story.comment}"</p>
-                            </div>
-                        ))}
-                    </div>
-                </Card>
-
-                <Modal isOpen={isStoryModalOpen} onClose={() => setIsStoryModalOpen(false)} title={editingStoryId ? "Edit Story" : "Add Success Story"}>
-                    <div className="space-y-4">
-                        <Input label="Name" value={storyForm.name || ''} onChange={e => setStoryForm({...storyForm, name: e.target.value})} />
-                        <Input label="Role / Job Title" value={storyForm.role || ''} onChange={e => setStoryForm({...storyForm, role: e.target.value})} placeholder="e.g. Software Engineer @ Google" />
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Testimonial Comment</label>
-                            <textarea className="w-full px-3 py-2 border border-gray-300 rounded-md" rows={3} value={storyForm.comment || ''} onChange={e => setStoryForm({...storyForm, comment: e.target.value})}></textarea>
-                        </div>
-                        <Input label="Image URL" value={storyForm.imageUrl || ''} onChange={e => setStoryForm({...storyForm, imageUrl: e.target.value})} placeholder="https://..." />
-                        
-                        <div className="flex justify-end space-x-2 pt-2">
-                            <Button variant="outline" onClick={() => setIsStoryModalOpen(false)}>Cancel</Button>
-                            <Button onClick={handleSaveStory}>Save Story</Button>
-                        </div>
-                    </div>
-                </Modal>
-            </div>
-        );
-
-      // Fallback for inaccessible tabs or removed ones
-      default:
-        return <div>Select an item from the sidebar.</div>;
+      default: return <div>Select an option from the sidebar.</div>;
     }
   };
 
-  if (userType === UserType.CANDIDATE) {
-      return (
-          <div className="max-w-7xl mx-auto py-12 px-4">
-              <div className="flex justify-between items-center mb-6">
-                  <h1 className="text-2xl font-bold">Candidate Dashboard</h1>
-                  <div className="flex space-x-2">
-                      <button onClick={() => setCandidateTab('overview')} className={`px-4 py-2 rounded-md text-sm font-medium ${candidateTab === 'overview' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>Overview</button>
-                      <button onClick={() => setCandidateTab('profile')} className={`px-4 py-2 rounded-md text-sm font-medium ${candidateTab === 'profile' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>My Profile</button>
-                      <button onClick={() => setCandidateTab('saved')} className={`px-4 py-2 rounded-md text-sm font-medium ${candidateTab === 'saved' ? 'bg-primary text-white' : 'bg-white text-gray-700'}`}>Saved Jobs</button>
-                  </div>
-              </div>
-
-              {candidateTab === 'overview' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <Card title="Profile Status">
-                          <div className="h-2 bg-gray-200 rounded-full mt-2">
-                              <div className="h-2 bg-green-500 rounded-full w-3/4"></div>
-                          </div>
-                          <p className="text-xs text-gray-500 mt-1">80% Complete</p>
-                          <Button variant="outline" className="mt-4 w-full text-xs" onClick={() => setCandidateTab('profile')}>Update Profile</Button>
-                      </Card>
-                      <Card title="Applied Jobs">
-                          <div className="text-3xl font-bold text-primary">5</div>
-                          <p className="text-xs text-gray-500">Active applications</p>
-                          <Button variant="outline" className="mt-4 w-full text-xs">View Applications</Button>
-                      </Card>
-                      <Card title="Saved Jobs">
-                          <div className="text-3xl font-bold text-accent">{savedJobsList.length}</div>
-                          <p className="text-xs text-gray-500">Bookmarks</p>
-                          <Button variant="outline" className="mt-4 w-full text-xs" onClick={() => setCandidateTab('saved')}>View Saved</Button>
-                      </Card>
-                  </div>
-              ) : candidateTab === 'saved' ? (
-                  <div className="space-y-4">
-                          <div className="flex justify-between items-center mb-4">
-                             <h2 className="text-xl font-bold">Saved Jobs</h2>
-                             <button onClick={() => setCandidateTab('overview')} className="text-sm text-gray-500 hover:text-primary"> Back to Overview</button>
-                          </div>
-                          {savedJobsList.length > 0 ? (
-                              savedJobsList.map(job => (
-                                  <Card key={job.id} className="hover:shadow-md transition-shadow">
-                                      <div className="flex items-start space-x-4">
-                                          <div className="flex-shrink-0">
-                                              {job.companyLogo ? (
-                                                  <img src={job.companyLogo} alt={job.company} className="w-12 h-12 object-contain rounded-md border border-gray-100 p-1" />
-                                              ) : (
-                                                  <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center text-gray-400 border border-gray-200">
-                                                      <i className="fas fa-building text-xl"></i>
-                                                  </div>
-                                              )}
-                                          </div>
-                                          <div className="flex-grow">
-                                              <div className="flex justify-between items-start">
-                                                  <div>
-                                                      <h3 className="text-lg font-bold text-primary">{job.title}</h3>
-                                                      <p className="font-medium text-sm text-gray-700">{job.company}</p>
-                                                      <p className="text-xs text-gray-500 mt-1"><i className="fas fa-map-marker-alt mr-1"></i> {job.location} • {job.category}</p>
-                                                  </div>
-                                                  <div className="flex space-x-2">
-                                                      <Button variant="outline" className="text-xs border-red-200 text-red-500 hover:bg-red-50" onClick={() => handleUnsaveJob(job.id)}>
-                                                          <i className="fas fa-trash mr-1"></i> Remove
-                                                      </Button>
-                                                      <Button className="text-xs">Apply Now</Button>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </Card>
-                              ))
-                          ) : (
-                              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-                                  <i className="far fa-heart text-4xl text-gray-300 mb-3"></i>
-                                  <p className="text-gray-500">You haven't saved any jobs yet.</p>
-                                  <Button variant="outline" className="mt-4" onClick={() => {}}>Browse Jobs</Button>
-                              </div>
-                          )}
-                  </div>
-              ) : (
-                  <Card title="My Profile Details">
-                      <div className="space-y-6">
-                          {/* Personal Info */}
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-b pb-6">
-                              <div className="md:col-span-1 flex flex-col items-center">
-                                  <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 text-3xl mb-3">
-                                      <i className="fas fa-user"></i>
-                                  </div>
-                                  <h3 className="text-xl font-bold">{mockProfile.name}</h3>
-                                  <p className="text-gray-500 text-sm">{mockProfile.location}</p>
-                                  {mockProfile.linkedin && (
-                                      <a href={mockProfile.linkedin} className="text-blue-600 text-xs mt-1 hover:underline">
-                                          <i className="fab fa-linkedin mr-1"></i> LinkedIn Profile
-                                      </a>
-                                  )}
-                              </div>
-                              <div className="md:col-span-2 space-y-4">
-                                  <div className="grid grid-cols-2 gap-4">
-                                      <div><label className="text-xs text-gray-500">Email</label><div className="font-medium">{mockProfile.email}</div></div>
-                                      <div><label className="text-xs text-gray-500">Mobile</label><div className="font-medium">{mockProfile.mobile}</div></div>
-                                  </div>
-                                  <div><label className="text-xs text-gray-500">Languages</label><div className="font-medium">{mockProfile.languages}</div></div>
-                                  <div><label className="text-xs text-gray-500">Skills</label><div className="flex flex-wrap gap-2 mt-1">{mockProfile.skills.split(',').map(s => <span key={s} className="bg-teal-50 text-teal-700 px-2 py-1 rounded text-xs">{s.trim()}</span>)}</div></div>
-                              </div>
-                          </div>
-
-                          {/* Professional */}
-                          <div className="border-b pb-6">
-                              <h4 className="text-lg font-bold text-gray-800 mb-4">Experience</h4>
-                              {mockProfile.experience.map((exp, i) => (
-                                  <div key={i} className="mb-4 last:mb-0">
-                                      <div className="flex justify-between">
-                                          <span className="font-bold text-primary">{exp.role}</span>
-                                          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{exp.duration}</span>
-                                      </div>
-                                      <div className="text-sm font-medium">{exp.company}</div>
-                                  </div>
-                              ))}
-                          </div>
-
-                          {/* Education */}
-                          <div className="border-b pb-6">
-                              <h4 className="text-lg font-bold text-gray-800 mb-4">Education</h4>
-                              {mockProfile.education.map((edu, i) => (
-                                  <div key={i} className="mb-2">
-                                      <div className="font-bold">{edu.degree}</div>
-                                      <div className="text-sm text-gray-600">{edu.institution} • {edu.year}</div>
-                                      <div className="text-xs text-gray-500">Score: {edu.percentage}</div>
-                                  </div>
-                              ))}
-                          </div>
-
-                          {/* Preferences */}
-                          <div>
-                              <h4 className="text-lg font-bold text-gray-800 mb-4">Preferences</h4>
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-gray-50 p-4 rounded">
-                                  <div><label className="text-xs text-gray-500">Preferred Role</label><div className="font-medium text-sm">{mockProfile.preferences.role}</div></div>
-                                  <div><label className="text-xs text-gray-500">Job Type</label><div className="font-medium text-sm">{mockProfile.preferences.type}</div></div>
-                                  <div><label className="text-xs text-gray-500">Expected Salary</label><div className="font-medium text-sm">{mockProfile.preferences.salary}</div></div>
-                                  <div><label className="text-xs text-gray-500">Willing to Relocate</label><div className="font-medium text-sm">{mockProfile.preferences.relocate}</div></div>
-                              </div>
-                          </div>
-                      </div>
-                  </Card>
-              )}
-          </div>
-      )
-  }
-
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} userType={userType} />
-      <div className="flex-1 p-8 overflow-y-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 capitalize">{activeTab.replace('-', ' ')}</h1>
-        {renderContent()}
-      </div>
+    <div className="flex min-h-screen bg-gray-100 font-sans">
+        {userType !== UserType.CANDIDATE && (
+            <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} userType={userType} />
+        )}
+        <main className="flex-1 p-8 overflow-y-auto h-screen">
+            <div className="mb-6 pb-4 border-b border-gray-200 flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800">
+                        {userType === UserType.CANDIDATE ? 'My Dashboard' : 'Control Center'}
+                    </h1>
+                    <p className="text-sm text-gray-500 mt-1">
+                        {userType === UserType.CANDIDATE ? `Welcome back, ${mockProfile.name}` : 'Manage your platform operations'}
+                    </p>
+                </div>
+                {userType === UserType.CANDIDATE && (
+                    <div className="flex space-x-2">
+                         <button onClick={() => setCandidateTab('overview')} className={`px-4 py-2 text-sm font-medium rounded-md ${candidateTab === 'overview' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:bg-gray-200'}`}>Overview</button>
+                         <button onClick={() => setCandidateTab('saved')} className={`px-4 py-2 text-sm font-medium rounded-md ${candidateTab === 'saved' ? 'bg-white shadow text-primary' : 'text-gray-500 hover:bg-gray-200'}`}>Saved Jobs</button>
+                    </div>
+                )}
+            </div>
+
+            {renderContent()}
+        </main>
+        
+        {/* Job Preview Modal */}
+        <Modal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} title="Job Post Preview">
+             <div className="space-y-4">
+                 <div className="bg-gray-50 p-4 rounded border">
+                     <h3 className="text-lg font-bold text-primary">{jobForm.title}</h3>
+                     <p className="text-sm text-gray-600">My Company - {jobForm.location}</p>
+                     <div className="flex space-x-2 mt-2 text-xs">
+                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">{jobForm.jobType}</span>
+                         <span className="bg-green-100 text-green-800 px-2 py-1 rounded">{jobForm.salaryMin} - {jobForm.salaryMax}</span>
+                     </div>
+                     <p className="mt-4 text-sm text-gray-800 whitespace-pre-wrap">{jobForm.description}</p>
+                 </div>
+                 <div className="flex justify-end space-x-2">
+                     <Button variant="outline" onClick={() => setIsPreviewOpen(false)}>Edit</Button>
+                     <Button onClick={handlePublishJob}>Confirm & Publish</Button>
+                 </div>
+             </div>
+        </Modal>
+
+        {/* Success Story Modal */}
+        <Modal isOpen={isStoryModalOpen} onClose={() => setIsStoryModalOpen(false)} title={editingStoryId ? "Edit Story" : "Add New Success Story"}>
+             <div className="space-y-4">
+                 <Input label="Name" value={storyForm.name || ''} onChange={e => setStoryForm({...storyForm, name: e.target.value})} />
+                 <Input label="Role / Title" value={storyForm.role || ''} onChange={e => setStoryForm({...storyForm, role: e.target.value})} />
+                 <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-1">Comment / Story</label>
+                     <textarea className="w-full border rounded p-2" rows={4} value={storyForm.comment || ''} onChange={e => setStoryForm({...storyForm, comment: e.target.value})}></textarea>
+                 </div>
+                 <Input label="Image URL (Optional)" value={storyForm.imageUrl || ''} onChange={e => setStoryForm({...storyForm, imageUrl: e.target.value})} />
+                 <Button className="w-full" onClick={handleSaveStory}>Save Story</Button>
+             </div>
+        </Modal>
     </div>
   );
 };
